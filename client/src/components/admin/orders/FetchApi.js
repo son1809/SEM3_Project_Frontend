@@ -1,32 +1,20 @@
 import axios from "axios";
 const apiURL = process.env.REACT_APP_API_URL;
 
-export const getAllOrder = async () => {
+export const createOrder = async (orderData) => {
   try {
-    let res = await axios.get(`${apiURL}/api/order/get-all-orders`);
+    const res = await axios.post(`${apiURL}/api/order`, orderData);
     return res.data;
   } catch (error) {
-    console.log(error);
+    console.error("Error creating order:", error);
   }
 };
 
-export const editCategory = async (oId, status) => {
-  let data = { oId: oId, status: status };
-  console.log(data);
+export const getMyOrders = async () => {
   try {
-    let res = await axios.post(`${apiURL}/api/order/update-order`, data);
+    const res = await axios.get(`${apiURL}/api/order/my`);
     return res.data;
   } catch (error) {
-    console.log(error);
-  }
-};
-
-export const deleteOrder = async (oId) => {
-  let data = { oId: oId };
-  try {
-    let res = await axios.post(`${apiURL}/api/order/delete-order`, data);
-    return res.data;
-  } catch (error) {
-    console.log(error);
+    console.error("Error getting user orders:", error);
   }
 };
