@@ -89,3 +89,23 @@ export const deleteProduct = async (id) => {
     return { error: "Delete failed" };
   }
 };
+
+// Get products by category
+export const productByCategory = async (catId) => {
+  try {
+    const res = await axios.get(`${apiURL}/api/product/category/${catId}`);
+    return { Products: res.data };
+  } catch (error) {
+    console.error("Error getting products by category:", error);
+  }
+};
+
+// Get products by price range
+export const productByPrice = async (min, max) => {
+  try {
+    const res = await axios.get(`${apiURL}/api/product/price?min=${min}&max=${max}`);
+    return { Products: res.data };
+  } catch (error) {
+    console.error("Error getting products by price:", error);
+  }
+};

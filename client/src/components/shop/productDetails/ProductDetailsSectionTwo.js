@@ -32,7 +32,11 @@ const Menu = () => {
         >
           <span>Reviews</span>
           <span className="absolute text-xs top-0 right-0 mt-2 bg-yellow-700 text-white rounded px-1">
-            {layoutData.singleProductDetail.pRatingsReviews.length}
+            {(
+              layoutData.singleProductDetail.ratingsReviews ||
+              layoutData.singleProductDetail.pRatingsReviews ||
+              []
+            ).length}
           </span>
         </div>
       </div>
