@@ -3,8 +3,6 @@ import { getAllProduct, deleteProduct } from "./FetchApi";
 import moment from "moment";
 import { ProductContext } from "./index";
 
-const apiURL = process.env.REACT_APP_API_URL;
-
 const AllProduct = (props) => {
   const { data, dispatch } = useContext(ProductContext);
   const { products } = data;
@@ -83,7 +81,7 @@ const AllProduct = (props) => {
               <th className="px-4 py-2 border">Status</th>
               <th className="px-4 py-2 border">Stock</th>
               <th className="px-4 py-2 border">Category</th>
-              <th className="px-4 py-2 border">Offer</th>
+              <th className="px-4 py-2 border">Warranty</th>
               <th className="px-4 py-2 border">Created at</th>
               <th className="px-4 py-2 border">Updated at</th>
               <th className="px-4 py-2 border">Actions</th>
@@ -129,43 +127,41 @@ const ProductTable = ({ product, deleteProduct, editProduct }) => {
     <Fragment>
       <tr>
         <td className="p-2 text-left">
-          {product.pName.length > 15
-            ? product.pDescription.substring(1, 15) + "..."
-            : product.pName}
+          {product.name && product.name.length > 15
+            ? product.name.substring(0, 15) + "..."
+            : product.name}
         </td>
         <td className="p-2 text-left">
-          {product.pDescription.slice(0, 15)}...
+          {product.description ? product.description.slice(0, 15) + "..." : ""}
         </td>
         <td className="p-2 text-center">
           <img
             className="w-12 h-12 object-cover object-center"
-            src={`${apiURL}/uploads/products/${product.pImages[0]}`}
+            src={product.imageUrl}
             alt="pic"
           />
         </td>
         <td className="p-2 text-center">
-          {product.pStatus === "Active" ? (
-            <span className="bg-green-200 rounded-full text-center text-xs px-2 font-semibold">
-              {product.pStatus}
-            </span>
-          ) : (
-            <span className="bg-red-200 rounded-full text-center text-xs px-2 font-semibold">
-              {product.pStatus}
-            </span>
-          )}
+          <span
+            className={`rounded-full text-center text-xs px-2 font-semibold ${
+              product.status === "Active" ? "bg-green-200" : "bg-red-200"
+            }`}
+          >
+            {product.status || "Active"}
+          </span>
         </td>
-        <td className="p-2 text-center">{product.pQuantity}</td>
-        <td className="p-2 text-center">{product.pCategory.cName}</td>
-        <td className="p-2 text-center">{product.pOffer}</td>
+        <td className="p-2 text-center">{product.inventoryQuantity}</td>
+        <td className="p-2 text-center">{product.categoryName}</td>
+        <td className="p-2 text-center">{product.warrantyPeriod}</td>
         <td className="p-2 text-center">
-          {moment(product.createdAt).format("lll")}
+          {product.createdAt ? moment(product.createdAt).format("lll") : ""}
         </td>
         <td className="p-2 text-center">
-          {moment(product.updatedAt).format("lll")}
+          {product.updatedAt ? moment(product.updatedAt).format("lll") : ""}
         </td>
         <td className="p-2 flex items-center justify-center">
           <span
-            onClick={(e) => editProduct(product._id, product, true)}
+            onClick={(e) => editProduct(product.id, product, true)}
             className="cursor-pointer hover:bg-gray-200 rounded-lg p-2 mx-1"
           >
             <svg
@@ -183,7 +179,7 @@ const ProductTable = ({ product, deleteProduct, editProduct }) => {
             </svg>
           </span>
           <span
-            onClick={(e) => deleteProduct(product._id)}
+            onClick={(e) => deleteProduct(product.id)}
             className="cursor-pointer hover:bg-gray-200 rounded-lg p-2 mx-1"
           >
             <svg

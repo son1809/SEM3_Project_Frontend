@@ -1,5 +1,6 @@
 import { createOrder } from "./FetchApi";
 
+// Fetch cart products
 export const fetchData = async (cartListProduct, dispatch) => {
   dispatch({ type: "loading", payload: true });
   try {
@@ -15,82 +16,49 @@ export const fetchData = async (cartListProduct, dispatch) => {
   }
 };
 
-export const fetchbrainTree = async (getBrainTreeToken, setState) => {
-  try {
-    let responseData = await getBrainTreeToken();
-    if (responseData && responseData) {
-      setState({
-        clientToken: responseData.clientToken,
-        success: responseData.success,
-      });
-      console.log(responseData);
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-
+// New pay function for order creation
 export const pay = async (
-  data,
+  cartProducts,
+  deliveryType,
   dispatch,
   state,
   setState,
-  getPaymentProcess,
   totalCost,
-  history
+  navigate
 ) => {
-  console.log(state);
   if (!state.address) {
     setState({ ...state, error: "Please provide your address" });
-  } else if (!state.phone) {
-    setState({ ...state, error: "Please provide your phone number" });
-  } else {
-    let nonce;
-    state.instance
-      .requestPaymentMethod()
-      .then((data) => {
-        dispatch({ type: "loading", payload: true });
-        nonce = data.nonce;
-        let paymentData = {
-          amountTotal: totalCost(),
-          paymentMethod: nonce,
-        };
-        getPaymentProcess(paymentData)
-          .then(async (res) => {
-            if (res) {
-              let orderData = {
-                allProduct: JSON.parse(localStorage.getItem("cart")),
-                user: JSON.parse(localStorage.getItem("jwt")).user._id,
-                amount: res.transaction.amount,
-                transactionId: res.transaction.id,
-                address: state.address,
-                phone: state.phone,
-              };
-              try {
-                let resposeData = await createOrder(orderData);
-                if (resposeData.success) {
-                  localStorage.setItem("cart", JSON.stringify([]));
-                  dispatch({ type: "cartProduct", payload: null });
-                  dispatch({ type: "cartTotalCost", payload: null });
-                  dispatch({ type: "orderSuccess", payload: true });
-                  setState({ clientToken: "", instance: {} });
-                  dispatch({ type: "loading", payload: false });
-                  return navigate("/");
-                } else if (resposeData.error) {
-                  console.log(resposeData.error);
-                }
-              } catch (error) {
-                console.log(error);
-              }
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      })
-      .catch((error) => {
-        console.log(error);
-        setState({ ...state, error: error.message });
-      });
+    return;
+  }
+  // Prepare items array for backend
+  const items = cartProducts.map((item) => ({
+    productId: item.id,
+    quantity: item.cartQuantity || 1,
+  }));
+
+  const orderData = {
+    items,
+    deliveryType: deliveryType || "Standard",
+    deliveryAddress: state.address,
+  };
+
+  try {
+    dispatch({ type: "loading", payload: true });
+    let response = await createOrder(orderData);
+    if (response && response.id) {
+      localStorage.setItem("cart", JSON.stringify([]));
+      dispatch({ type: "cartProduct", payload: null });
+      dispatch({ type: "cartTotalCost", payload: null });
+      dispatch({ type: "orderSuccess", payload: true });
+      setState({ ...state, error: null, success: "Order placed successfully!" });
+      dispatch({ type: "loading", payload: false });
+      navigate("/dashboard/orders");
+    } else if (response && response.error) {
+      setState({ ...state, error: response.error });
+      dispatch({ type: "loading", payload: false });
+    }
+  } catch (error) {
+    setState({ ...state, error: "Order failed" });
+    dispatch({ type: "loading", payload: false });
   }
 };

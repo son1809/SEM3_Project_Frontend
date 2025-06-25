@@ -7,6 +7,13 @@ import { filterOrder } from "./Actions";
 const OrderMenu = (props) => {
   const { data, dispatch } = useContext(OrderContext);
   const [dropdown, setDropdown] = useState(false);
+  // Backend statuses: Pending, Processing, Shipped, Delivered, Cancelled
+  const statusList = [
+    "Pending",
+    "Dispatched",
+    "Delivered",
+    "Cancelled",
+  ];
   return (
     <Fragment>
       <div className="col-span-1 flex items-center">
@@ -36,85 +43,29 @@ const OrderMenu = (props) => {
                 dropdown ? "" : "hidden"
               } absolute top-0 left-0 mt-12 rounded-lg overflow-hidden w-full md:w-48 flex flex-col z-10`}
             >
-              <span
-                onClick={(e) =>
-                  filterOrder("All", data, dispatch, dropdown, setDropdown)
-                }
-                className="px-4 py-2 hover:bg-black text-center cursor-pointer"
-              >
-                All
-              </span>
-              <span
-                onClick={(e) =>
-                  filterOrder(
-                    "Not processed",
-                    data,
-                    dispatch,
-                    dropdown,
-                    setDropdown
-                  )
-                }
-                className="px-4 py-2 hover:bg-black text-center cursor-pointer"
-              >
-                Not processed
-              </span>
-              <span
-                onClick={(e) =>
-                  filterOrder(
-                    "Processing",
-                    data,
-                    dispatch,
-                    dropdown,
-                    setDropdown
-                  )
-                }
-                className="px-4 py-2 hover:bg-black text-center cursor-pointer"
-              >
-                Processing
-              </span>
-              <span
-                onClick={(e) =>
-                  filterOrder("Shipped", data, dispatch, dropdown, setDropdown)
-                }
-                className="px-4 py-2 hover:bg-black text-center cursor-pointer"
-              >
-                Shipped
-              </span>
-              <span
-                onClick={(e) =>
-                  filterOrder(
-                    "Delivered",
-                    data,
-                    dispatch,
-                    dropdown,
-                    setDropdown
-                  )
-                }
-                className="px-4 py-2 hover:bg-black text-center cursor-pointer"
-              >
-                Delivered
-              </span>
-              <span
-                onClick={(e) =>
-                  filterOrder(
-                    "Cancelled",
-                    data,
-                    dispatch,
-                    dropdown,
-                    setDropdown
-                  )
-                }
-                className="px-4 py-2 hover:bg-black text-center cursor-pointer"
-              >
-                Cancelled
-              </span>
+              {statusList.map((status) => (
+                <span
+                  key={status}
+                  onClick={() =>
+                    filterOrder(
+                      status === "All" ? "All" : status,
+                      data,
+                      dispatch,
+                      dropdown,
+                      setDropdown
+                    )
+                  }
+                  className="px-4 py-2 hover:bg-black text-center cursor-pointer"
+                >
+                  {status}
+                </span>
+              ))}
             </div>
           </div>
           <div>
             <SearchFilter />
           </div>
         </div>
-        {/*<AddCategoryModal/>*/}
         <UpdateOrderModal />
       </div>
     </Fragment>

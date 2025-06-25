@@ -14,17 +14,15 @@ export const fetchData = async (dispatch) => {
   }, 1000);
 };
 
-/* This method call the editmodal & dispatch category context */
+/* This method call the editmodal & dispatch order context */
 export const editOrderReq = (oId, type, status, dispatch) => {
   if (type) {
-    console.log("click update");
     dispatch({ type: "updateOrderModalOpen", oId: oId, status: status });
   }
 };
 
 export const deleteOrderReq = async (oId, dispatch) => {
   let responseData = await deleteOrder(oId);
-  console.log(responseData);
   if (responseData && responseData.success) {
     fetchData(dispatch);
   }
@@ -47,31 +45,10 @@ export const filterOrder = async (
         payload: responseData.Orders,
       });
       setDropdown(!dropdown);
-    } else if (type === "Not processed") {
+    } else {
+      // Filtering by dispatchStatus (new backend field)
       newData = responseData.Orders.filter(
-        (item) => item.status === "Not processed"
-      );
-      dispatch({ type: "fetchOrderAndChangeState", payload: newData });
-      setDropdown(!dropdown);
-    } else if (type === "Processing") {
-      newData = responseData.Orders.filter(
-        (item) => item.status === "Processing"
-      );
-      dispatch({ type: "fetchOrderAndChangeState", payload: newData });
-      setDropdown(!dropdown);
-    } else if (type === "Shipped") {
-      newData = responseData.Orders.filter((item) => item.status === "Shipped");
-      dispatch({ type: "fetchOrderAndChangeState", payload: newData });
-      setDropdown(!dropdown);
-    } else if (type === "Delivered") {
-      newData = responseData.Orders.filter(
-        (item) => item.status === "Delivered"
-      );
-      dispatch({ type: "fetchOrderAndChangeState", payload: newData });
-      setDropdown(!dropdown);
-    } else if (type === "Cancelled") {
-      newData = responseData.Orders.filter(
-        (item) => item.status === "Cancelled"
+        (item) => item.dispatchStatus === type
       );
       dispatch({ type: "fetchOrderAndChangeState", payload: newData });
       setDropdown(!dropdown);

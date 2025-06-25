@@ -2,12 +2,11 @@ import React, { Fragment, useContext, useState, useEffect } from "react";
 import { ProductContext } from "./index";
 import { editProduct, getAllProduct } from "./FetchApi";
 import { getAllCategory } from "../categories/FetchApi";
-const apiURL = process.env.REACT_APP_API_URL;
 
 const EditProductModal = (props) => {
   const { data, dispatch } = useContext(ProductContext);
 
-  const [categories, setCategories] = useState(null);
+  const [categories, setCategories] = useState([]);
 
   const alert = (msg, type) => (
     <div className={`bg-${type}-200 py-2 px-4 w-full`}>{msg}</div>
@@ -17,12 +16,12 @@ const EditProductModal = (props) => {
     pId: "",
     pName: "",
     pDescription: "",
-    pImages: null,
-    pEditImages: null,
-    pStatus: "",
+    pImage: "",
+    pStatus: "Active",
     pCategory: "",
     pQuantity: "",
     pPrice: "",
+    pWarrantyPeriod: "",
     pOffer: "",
     error: false,
     success: false,
@@ -44,12 +43,15 @@ const EditProductModal = (props) => {
       pId: data.editProductModal.pId,
       pName: data.editProductModal.pName,
       pDescription: data.editProductModal.pDescription,
-      pImages: data.editProductModal.pImages,
-      pStatus: data.editProductModal.pStatus,
+      pImage: data.editProductModal.pImage,
+      pStatus: data.editProductModal.pStatus || "Active",
       pCategory: data.editProductModal.pCategory,
       pQuantity: data.editProductModal.pQuantity,
       pPrice: data.editProductModal.pPrice,
+      pWarrantyPeriod: data.editProductModal.pWarrantyPeriod,
       pOffer: data.editProductModal.pOffer,
+      error: false,
+      success: false,
     });
   }, [data.editProductModal]);
 
@@ -65,33 +67,22 @@ const EditProductModal = (props) => {
 
   const submitForm = async (e) => {
     e.preventDefault();
-    if (!editformData.pEditImages) {
-      console.log("Image Not upload=============", editformData);
-    } else {
-      console.log("Image uploading");
-    }
     try {
       let responseData = await editProduct(editformData);
-      if (responseData.success) {
+      if (responseData && responseData.id) {
         fetchData();
-        setEditformdata({ ...editformData, success: responseData.success });
+        setEditformdata({ ...editformData, success: "Product updated successfully!" });
         setTimeout(() => {
-          return setEditformdata({
-            ...editformData,
-            success: responseData.success,
-          });
-        }, 2000);
-      } else if (responseData.error) {
+          dispatch({ type: "editProductModalClose", payload: false });
+        }, 1500);
+      } else if (responseData && responseData.error) {
         setEditformdata({ ...editformData, error: responseData.error });
         setTimeout(() => {
-          return setEditformdata({
-            ...editformData,
-            error: responseData.error,
-          });
+          setEditformdata({ ...editformData, error: false });
         }, 2000);
       }
     } catch (error) {
-      console.log(error);
+      setEditformdata({ ...editformData, error: "Update failed" });
     }
   };
 
@@ -145,7 +136,7 @@ const EditProductModal = (props) => {
           </div>
           {editformData.error ? alert(editformData.error, "red") : ""}
           {editformData.success ? alert(editformData.success, "green") : ""}
-          <form className="w-full" onSubmit={(e) => submitForm(e)}>
+          <form className="w-full" onSubmit={submitForm}>
             <div className="flex space-x-1 py-4">
               <div className="w-1/2 flex flex-col space-y-1 space-x-1">
                 <label htmlFor="name">Product Name *</label>
@@ -200,43 +191,24 @@ const EditProductModal = (props) => {
                 rows={2}
               />
             </div>
-            {/* Most Important part for uploading multiple image */}
             <div className="flex flex-col mt-4">
-              <label htmlFor="image">Product Images *</label>
-              {editformData.pImages ? (
-                <div className="flex space-x-1">
-                  <img
-                    className="h-16 w-16 object-cover"
-                    src={`${apiURL}/uploads/products/${editformData.pImages[0]}`}
-                    alt="productImage"
-                  />
-                  <img
-                    className="h-16 w-16 object-cover"
-                    src={`${apiURL}/uploads/products/${editformData.pImages[1]}`}
-                    alt="productImage"
-                  />
-                </div>
-              ) : (
-                ""
-              )}
-              <span className="text-gray-600 text-xs">Must need 2 images</span>
+              <label htmlFor="image">Product Image URL *</label>
               <input
+                value={editformData.pImage}
                 onChange={(e) =>
                   setEditformdata({
                     ...editformData,
                     error: false,
                     success: false,
-                    pEditImages: [...e.target.files],
+                    pImage: e.target.value,
                   })
                 }
-                type="file"
-                accept=".jpg, .jpeg, .png"
+                type="text"
                 className="px-4 py-2 border focus:outline-none"
                 id="image"
-                multiple
+                placeholder="https://example.com/image.jpg"
               />
             </div>
-            {/* Most Important part for uploading multiple image */}
             <div className="flex space-x-1 py-4">
               <div className="w-1/2 flex flex-col space-y-1">
                 <label htmlFor="status">Product Status *</label>
@@ -263,8 +235,9 @@ const EditProductModal = (props) => {
                 </select>
               </div>
               <div className="w-1/2 flex flex-col space-y-1">
-                <label htmlFor="status">Product Category *</label>
+                <label htmlFor="category">Product Category *</label>
                 <select
+                  value={editformData.pCategory}
                   onChange={(e) =>
                     setEditformdata({
                       ...editformData,
@@ -273,39 +246,19 @@ const EditProductModal = (props) => {
                       pCategory: e.target.value,
                     })
                   }
-                  name="status"
+                  name="category"
                   className="px-4 py-2 border focus:outline-none"
-                  id="status"
+                  id="category"
                 >
                   <option disabled value="">
                     Select a category
                   </option>
                   {categories && categories.length > 0
-                    ? categories.map((elem) => {
-                        return (
-                          <Fragment key={elem._id}>
-                            {editformData.pCategory._id &&
-                            editformData.pCategory._id === elem._id ? (
-                              <option
-                                name="status"
-                                value={elem._id}
-                                key={elem._id}
-                                selected
-                              >
-                                {elem.cName}
-                              </option>
-                            ) : (
-                              <option
-                                name="status"
-                                value={elem._id}
-                                key={elem._id}
-                              >
-                                {elem.cName}
-                              </option>
-                            )}
-                          </Fragment>
-                        );
-                      })
+                    ? categories.map((elem) => (
+                        <option value={elem.id || elem._id} key={elem.id || elem._id}>
+                          {elem.cName}
+                        </option>
+                      ))
                     : ""}
                 </select>
               </div>
@@ -329,20 +282,20 @@ const EditProductModal = (props) => {
                 />
               </div>
               <div className="w-1/2 flex flex-col space-y-1">
-                <label htmlFor="offer">Product Offfer (%) *</label>
+                <label htmlFor="warranty">Warranty Period (months) *</label>
                 <input
-                  value={editformData.pOffer}
+                  value={editformData.pWarrantyPeriod}
                   onChange={(e) =>
                     setEditformdata({
                       ...editformData,
                       error: false,
                       success: false,
-                      pOffer: e.target.value,
+                      pWarrantyPeriod: e.target.value,
                     })
                   }
                   type="number"
                   className="px-4 py-2 border focus:outline-none"
-                  id="offer"
+                  id="warranty"
                 />
               </div>
             </div>

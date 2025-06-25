@@ -1,12 +1,14 @@
 import axios from "axios";
 const apiURL = process.env.REACT_APP_API_URL || "";
 
+// Get JWT from localStorage
 export const isAuthenticate = () =>
   localStorage.getItem("jwt") ? JSON.parse(localStorage.getItem("jwt")) : false;
 
+// Check if user is admin (role: "Admin")
 export const isAdmin = () =>
   localStorage.getItem("jwt")
-    ? JSON.parse(localStorage.getItem("jwt")).user.role === 1
+    ? JSON.parse(localStorage.getItem("jwt")).role === "Admin"
     : false;
 
 export const loginReq = async ({ email, password }) => {

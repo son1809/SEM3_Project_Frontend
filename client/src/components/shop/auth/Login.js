@@ -1,12 +1,13 @@
 import React, { Fragment, useState, useContext } from "react";
 import { LayoutContext } from "../index";
 import { useSnackbar } from 'notistack';
+import { loginReq } from "./fetchApi";
 
 const Login = (props) => {
   const { data: layoutData, dispatch: layoutDispatch } = useContext(LayoutContext);
 
   const [data, setData] = useState({
-    email: "",
+    username: "",
     password: "",
     error: false,
     loading: false,
@@ -19,25 +20,19 @@ const Login = (props) => {
   const formSubmit = async () => {
     setData({ ...data, loading: true });
     try {
-      let response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: data.email, // backend yêu cầu trường "username"
-          password: data.password,
-        })
+      let responseData = await loginReq({
+        username: data.username,
+        password: data.password,
       });
-      if (!response.ok) {
-        const errorText = await response.text();
+      if (responseData.error) {
         setData({
           ...data,
           loading: false,
-          error: errorText,
+          error: responseData.error,
           password: "",
         });
-      } else {
-        const responseData = await response.json();
-        setData({ email: "", password: "", loading: false, error: false });
+      } else if (responseData.Token) {
+        setData({ username: "", password: "", loading: false, error: false });
         localStorage.setItem("jwt", JSON.stringify(responseData));
         enqueueSnackbar('Login Completed Successfully..!', { variant: 'success' });
         window.location.href = "/";
@@ -64,18 +59,18 @@ const Login = (props) => {
       )}
       <form className="space-y-4">
         <div className="flex flex-col">
-          <label htmlFor="name">
+          <label htmlFor="username">
             Username or email address
             <span className="text-sm text-gray-600 ml-1">*</span>
           </label>
           <input
             onChange={(e) => {
-              setData({ ...data, email: e.target.value, error: false });
+              setData({ ...data, username: e.target.value, error: false });
               layoutDispatch({ type: "loginSignupError", payload: false });
             }}
-            value={data.email}
+            value={data.username}
             type="text"
-            id="name"
+            id="username"
             className={`${
               !data.error ? "" : "border-red-500"
             } px-4 py-2 focus:outline-none border`}
