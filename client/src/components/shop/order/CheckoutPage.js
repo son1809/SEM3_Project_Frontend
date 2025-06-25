@@ -1,11 +1,11 @@
 import React, { Fragment } from "react";
 import Layout from "../layout";
-import { CheckoutComponent } from "./CheckoutProducts";
+import CheckoutProducts from "./CheckoutProducts";
 
 const CheckoutPage = (props) => {
   return (
     <Fragment>
-      <Layout children={<CheckoutComponent />} />
+      <Layout children={<CheckoutProducts />} />
     </Fragment>
   );
 };
