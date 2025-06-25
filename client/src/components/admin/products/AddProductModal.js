@@ -13,11 +13,10 @@ const AddProductDetail = ({ categories }) => {
   const [fData, setFdata] = useState({
     pName: "",
     pDescription: "",
-    pStatus: "Active",
-    pImage: null, // Initial value will be null or empty array
+    pImage: "",
     pCategory: "",
     pPrice: "",
-    pOffer: 0,
+    pWarrantyPeriod: "",
     pQuantity: "",
     success: false,
     error: false,
@@ -37,55 +36,40 @@ const AddProductDetail = ({ categories }) => {
 
   const submitForm = async (e) => {
     e.preventDefault();
-    e.target.reset();
-
     if (!fData.pImage) {
-      setFdata({ ...fData, error: "Please upload at least 2 image" });
+      setFdata({ ...fData, error: "Please provide an image URL" });
       setTimeout(() => {
         setFdata({ ...fData, error: false });
       }, 2000);
+      return;
     }
 
     try {
       let responseData = await createProduct(fData);
-      if (responseData.success) {
+      if (responseData && responseData.id) {
         fetchData();
         setFdata({
-          ...fData,
           pName: "",
           pDescription: "",
           pImage: "",
-          pStatus: "Active",
           pCategory: "",
           pPrice: "",
+          pWarrantyPeriod: "",
           pQuantity: "",
-          pOffer: 0,
-          success: responseData.success,
+          success: "Product created successfully!",
           error: false,
         });
         setTimeout(() => {
-          setFdata({
-            ...fData,
-            pName: "",
-            pDescription: "",
-            pImage: "",
-            pStatus: "Active",
-            pCategory: "",
-            pPrice: "",
-            pQuantity: "",
-            pOffer: 0,
-            success: false,
-            error: false,
-          });
-        }, 2000);
-      } else if (responseData.error) {
+          dispatch({ type: "addProductModal", payload: false });
+        }, 1500);
+      } else if (responseData && responseData.error) {
         setFdata({ ...fData, success: false, error: responseData.error });
         setTimeout(() => {
-          return setFdata({ ...fData, error: false, success: false });
+          setFdata({ ...fData, error: false, success: false });
         }, 2000);
       }
     } catch (error) {
-      console.log(error);
+      setFdata({ ...fData, error: "Create failed" });
     }
   };
 
@@ -137,7 +121,7 @@ const AddProductDetail = ({ categories }) => {
           </div>
           {fData.error ? alert(fData.error, "red") : ""}
           {fData.success ? alert(fData.success, "green") : ""}
-          <form className="w-full" onSubmit={(e) => submitForm(e)}>
+          <form className="w-full" onSubmit={submitForm}>
             <div className="flex space-x-1 py-4">
               <div className="w-1/2 flex flex-col space-y-1 space-x-1">
                 <label htmlFor="name">Product Name *</label>
@@ -192,54 +176,27 @@ const AddProductDetail = ({ categories }) => {
                 rows={2}
               />
             </div>
-            {/* Most Important part for uploading multiple image */}
             <div className="flex flex-col mt-4">
-              <label htmlFor="image">Product Images *</label>
-              <span className="text-gray-600 text-xs">Must need 2 images</span>
+              <label htmlFor="image">Product Image URL *</label>
               <input
+                value={fData.pImage}
                 onChange={(e) =>
                   setFdata({
                     ...fData,
                     error: false,
                     success: false,
-                    pImage: [...e.target.files],
+                    pImage: e.target.value,
                   })
                 }
-                type="file"
-                accept=".jpg, .jpeg, .png"
+                type="text"
                 className="px-4 py-2 border focus:outline-none"
                 id="image"
-                multiple
+                placeholder="https://example.com/image.jpg"
               />
             </div>
-            {/* Most Important part for uploading multiple image */}
             <div className="flex space-x-1 py-4">
               <div className="w-1/2 flex flex-col space-y-1">
-                <label htmlFor="status">Product Status *</label>
-                <select
-                  value={fData.pStatus}
-                  onChange={(e) =>
-                    setFdata({
-                      ...fData,
-                      error: false,
-                      success: false,
-                      pStatus: e.target.value,
-                    })
-                  }
-                  name="status"
-                  className="px-4 py-2 border focus:outline-none"
-                  id="status"
-                >
-                  <option name="status" value="Active">
-                    Active
-                  </option>
-                  <option name="status" value="Disabled">
-                    Disabled
-                  </option>
-                </select>
-              </div>
-              <div className="w-1/2 flex flex-col space-y-1">
-                <label htmlFor="status">Product Category *</label>
+                <label htmlFor="category">Product Category *</label>
                 <select
                   value={fData.pCategory}
                   onChange={(e) =>
@@ -250,9 +207,9 @@ const AddProductDetail = ({ categories }) => {
                       pCategory: e.target.value,
                     })
                   }
-                  name="status"
+                  name="category"
                   className="px-4 py-2 border focus:outline-none"
-                  id="status"
+                  id="category"
                 >
                   <option disabled value="">
                     Select a category
@@ -260,7 +217,10 @@ const AddProductDetail = ({ categories }) => {
                   {categories.length > 0
                     ? categories.map(function (elem) {
                         return (
-                          <option name="status" value={elem._id} key={elem._id}>
+                          <option
+                            value={elem.id || elem._id}
+                            key={elem.id || elem._id}
+                          >
                             {elem.cName}
                           </option>
                         );
@@ -268,42 +228,40 @@ const AddProductDetail = ({ categories }) => {
                     : ""}
                 </select>
               </div>
+              <div className="w-1/2 flex flex-col space-y-1">
+                <label htmlFor="warranty">Warranty Period (months) *</label>
+                <input
+                  value={fData.pWarrantyPeriod}
+                  onChange={(e) =>
+                    setFdata({
+                      ...fData,
+                      error: false,
+                      success: false,
+                      pWarrantyPeriod: e.target.value,
+                    })
+                  }
+                  type="number"
+                  className="px-4 py-2 border focus:outline-none"
+                  id="warranty"
+                />
+              </div>
             </div>
-            <div className="flex space-x-1 py-4">
-              <div className="w-1/2 flex flex-col space-y-1">
-                <label htmlFor="quantity">Product in Stock *</label>
-                <input
-                  value={fData.pQuantity}
-                  onChange={(e) =>
-                    setFdata({
-                      ...fData,
-                      error: false,
-                      success: false,
-                      pQuantity: e.target.value,
-                    })
-                  }
-                  type="number"
-                  className="px-4 py-2 border focus:outline-none"
-                  id="quantity"
-                />
-              </div>
-              <div className="w-1/2 flex flex-col space-y-1">
-                <label htmlFor="offer">Product Offfer (%) *</label>
-                <input
-                  value={fData.pOffer}
-                  onChange={(e) =>
-                    setFdata({
-                      ...fData,
-                      error: false,
-                      success: false,
-                      pOffer: e.target.value,
-                    })
-                  }
-                  type="number"
-                  className="px-4 py-2 border focus:outline-none"
-                  id="offer"
-                />
-              </div>
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="quantity">Product in Stock *</label>
+              <input
+                value={fData.pQuantity}
+                onChange={(e) =>
+                  setFdata({
+                    ...fData,
+                    error: false,
+                    success: false,
+                    pQuantity: e.target.value,
+                  })
+                }
+                type="number"
+                className="px-4 py-2 border focus:outline-none"
+                id="quantity"
+              />
             </div>
             <div className="flex flex-col space-y-1 w-full pb-4 md:pb-6 mt-4">
               <button
@@ -326,7 +284,7 @@ const AddProductModal = (props) => {
     fetchCategoryData();
   }, []);
 
-  const [allCat, setAllCat] = useState({});
+  const [allCat, setAllCat] = useState([]);
 
   const fetchCategoryData = async () => {
     let responseData = await getAllCategory();

@@ -4,9 +4,7 @@ import moment from "moment";
 import { OrderContext } from "./index";
 import { fetchData, editOrderReq, deleteOrderReq } from "./Actions";
 
-const apiURL = process.env.REACT_APP_API_URL;
-
-const AllCategory = (props) => {
+const AllOrders = (props) => {
   const { data, dispatch } = useContext(OrderContext);
   const { orders, loading } = data;
 
@@ -41,16 +39,14 @@ const AllCategory = (props) => {
         <table className="table-auto border w-full my-2">
           <thead>
             <tr>
-              <th className="px-4 py-2 border">Products</th>
-              <th className="px-4 py-2 border">Status</th>
+              <th className="px-4 py-2 border">Order ID</th>
+              <th className="px-4 py-2 border">Order Date</th>
+              <th className="px-4 py-2 border">Delivery Date</th>
+              <th className="px-4 py-2 border">Delivery Type</th>
+              <th className="px-4 py-2 border">Dispatch Status</th>
+              <th className="px-4 py-2 border">Payment Status</th>
               <th className="px-4 py-2 border">Total</th>
-              <th className="px-4 py-2 border">Transaction Id</th>
-              <th className="px-4 py-2 border">Customer</th>
-              <th className="px-4 py-2 border">Email</th>
-              <th className="px-4 py-2 border">Phone</th>
-              <th className="px-4 py-2 border">Address</th>
-              <th className="px-4 py-2 border">Created at</th>
-              <th className="px-4 py-2 border">Updated at</th>
+              <th className="px-4 py-2 border">Items</th>
               <th className="px-4 py-2 border">Actions</th>
             </tr>
           </thead>
@@ -58,7 +54,7 @@ const AllCategory = (props) => {
             {orders && orders.length > 0 ? (
               orders.map((item, i) => {
                 return (
-                  <CategoryTable
+                  <OrderTableRow
                     key={i}
                     order={item}
                     editOrder={(oId, type, status) =>
@@ -70,7 +66,7 @@ const AllCategory = (props) => {
             ) : (
               <tr>
                 <td
-                  colSpan="12"
+                  colSpan="9"
                   className="text-xl text-center font-semibold py-8"
                 >
                   No order found
@@ -87,76 +83,42 @@ const AllCategory = (props) => {
   );
 };
 
-/* Single Category Component */
-const CategoryTable = ({ order, editOrder }) => {
+/* Single Order Row Component */
+const OrderTableRow = ({ order, editOrder }) => {
   const { dispatch } = useContext(OrderContext);
 
   return (
     <Fragment>
       <tr className="border-b">
-        <td className="w-48 hover:bg-gray-200 p-2 flex flex-col space-y-1">
-          {order.allProduct.map((product, i) => {
-            return (
-              <span className="block flex items-center space-x-2" key={i}>
-                <img
-                  className="w-8 h-8 object-cover object-center"
-                  src={`${apiURL}/uploads/products/${product.id.pImages[0]}`}
-                  alt="productImage"
-                />
-                <span>{product.id.pName}</span>
-                <span>{product.quantitiy}x</span>
-              </span>
-            );
-          })}
+        <td className="p-2 text-center">{order.id}</td>
+        <td className="p-2 text-center">
+          {order.orderDate ? moment(order.orderDate).format("lll") : ""}
         </td>
-        <td className="hover:bg-gray-200 p-2 text-center cursor-default">
-          {order.status === "Not processed" && (
-            <span className="block text-red-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
-            </span>
+        <td className="p-2 text-center">
+          {order.deliveryDate ? moment(order.deliveryDate).format("lll") : ""}
+        </td>
+        <td className="p-2 text-center">{order.deliveryType}</td>
+        <td className="p-2 text-center">{order.dispatchStatus}</td>
+        <td className="p-2 text-center">{order.paymentStatus}</td>
+        <td className="p-2 text-center">${order.totalAmount}</td>
+        <td className="p-2">
+          {order.items && order.items.length > 0 ? (
+            <ul>
+              {order.items.map((item, idx) => (
+                <li key={idx} className="flex items-center space-x-2">
+                  <span>{item.productName}</span>
+                  <span>{item.quantity}x</span>
+                  <span>${item.price}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <span>No items</span>
           )}
-          {order.status === "Processing" && (
-            <span className="block text-yellow-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
-            </span>
-          )}
-          {order.status === "Shipped" && (
-            <span className="block text-blue-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
-            </span>
-          )}
-          {order.status === "Delivered" && (
-            <span className="block text-green-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
-            </span>
-          )}
-          {order.status === "Cancelled" && (
-            <span className="block text-red-600 rounded-full text-center text-xs px-2 font-semibold">
-              {order.status}
-            </span>
-          )}
-        </td>
-        <td className="hover:bg-gray-200 p-2 text-center">
-          ${order.amount}.00
-        </td>
-        <td className="hover:bg-gray-200 p-2 text-center">
-          {order.transactionId}
-        </td>
-        <td className="hover:bg-gray-200 p-2 text-center">{order.user.name}</td>
-        <td className="hover:bg-gray-200 p-2 text-center">
-          {order.user.email}
-        </td>
-        <td className="hover:bg-gray-200 p-2 text-center">{order.phone}</td>
-        <td className="hover:bg-gray-200 p-2 text-center">{order.address}</td>
-        <td className="hover:bg-gray-200 p-2 text-center">
-          {moment(order.createdAt).format("lll")}
-        </td>
-        <td className="hover:bg-gray-200 p-2 text-center">
-          {moment(order.updatedAt).format("lll")}
         </td>
         <td className="p-2 flex items-center justify-center">
           <span
-            onClick={(e) => editOrder(order._id, true, order.status)}
+            onClick={(e) => editOrder(order.id, true, order.dispatchStatus)}
             className="cursor-pointer hover:bg-gray-200 rounded-lg p-2 mx-1"
           >
             <svg
@@ -174,7 +136,7 @@ const CategoryTable = ({ order, editOrder }) => {
             </svg>
           </span>
           <span
-            onClick={(e) => deleteOrderReq(order._id, dispatch)}
+            onClick={(e) => deleteOrderReq(order.id, dispatch)}
             className="cursor-pointer hover:bg-gray-200 rounded-lg p-2 mx-1"
           >
             <svg
@@ -198,4 +160,4 @@ const CategoryTable = ({ order, editOrder }) => {
   );
 };
 
-export default AllCategory;
+export default AllOrders;

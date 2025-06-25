@@ -8,10 +8,10 @@ const Login = (props) => {
   );
 
   const [data, setData] = useState({
-    email: "",
+    username: "",
     password: "",
     error: false,
-    loading: true,
+    loading: false,
   });
 
   const alert = (msg) => <div className="text-xs text-red-500">{msg}</div>;
@@ -22,7 +22,7 @@ const Login = (props) => {
     setData({ ...data, loading: true });
     try {
       let responseData = await loginReq({
-        email: data.email,
+        username: data.username,
         password: data.password,
       });
       if (responseData.error) {
@@ -33,12 +33,11 @@ const Login = (props) => {
           password: "",
         });
       } else if (responseData.token) {
-        setData({ email: "", password: "", loading: false, error: false });
-        localStorage.setItem("jwt", JSON.stringify(responseData));
-       enqueueSnackbar('Login Completed Successfully..!', { variant: 'success' })
+        // Store token and decode role if needed
+        localStorage.setItem("jwt", JSON.stringify({ token: responseData.token }));
+        enqueueSnackbar('Login Completed Successfully..!', { variant: 'success' });
         window.location.href = "/";
-
-      }    
+      }
     } catch (error) {
       console.log(error);
     }
@@ -56,21 +55,20 @@ const Login = (props) => {
       )}
       <form className="space-y-4">
         <div className="flex flex-col">
-          <label htmlFor="name">
-            Username or email address
-            <span className="text-sm text-gray-600 ml-1">*</span>
+          <label htmlFor="username">
+            Username<span className="text-sm text-gray-600 ml-1">*</span>
           </label>
           <input
             onChange={(e) => {
-              setData({ ...data, email: e.target.value, error: false });
+              setData({ ...data, username: e.target.value, error: false });
               layoutDispatch({ type: "loginSignupError", payload: false });
             }}
-            value={data.email}
+            value={data.username}
             type="text"
-            id="name"
+            id="username"
             className={`${
               !data.error ? "" : "border-red-500"
-            } px-4 py-2 focus:outline-none border`}
+            } px-4 py-2 focus:outline-none border"}`}
           />
           {!data.error ? "" : alert(data.error)}
         </div>

@@ -3,6 +3,7 @@ import { signupReq } from "./fetchApi";
 import { useSnackbar } from 'notistack';
 const Signup = (props) => {
   const [data, setData] = useState({
+    username: "",
     name: "",
     email: "",
     password: "",
@@ -29,10 +30,10 @@ const Signup = (props) => {
     }
     try {
       let responseData = await signupReq({
+        username: data.username,
+        password: data.password,
         name: data.name,
         email: data.email,
-        password: data.password,
-        cPassword: data.cPassword,
       });
       if (responseData.error) {
         setData({
@@ -45,14 +46,15 @@ const Signup = (props) => {
       } else if (responseData.success) {
         setData({
           success: responseData.success,
+          username: "",
           name: "",
           email: "",
           password: "",
           cPassword: "",
           loading: false,
           error: false,
-        })
-        enqueueSnackbar('Account Created Successfully..!', { variant: 'success' })
+        });
+        enqueueSnackbar('Account Created Successfully..!', { variant: 'success' });
       }
     } catch (error) {
       console.log(error);
@@ -152,6 +154,28 @@ const Signup = (props) => {
             } px-4 py-2 focus:outline-none border`}
           />
           {!data.error ? "" : alert(data.error.cPassword, "red")}
+        </div>
+        <div className="flex flex-col">
+          <label htmlFor="username">
+            Username<span className="text-sm text-gray-600 ml-1">*</span>
+          </label>
+          <input
+            onChange={(e) =>
+              setData({
+                ...data,
+                success: false,
+                error: {},
+                username: e.target.value,
+              })
+            }
+            value={data.username}
+            type="text"
+            id="username"
+            className={`${
+              data.error.username ? "border-red-500" : ""
+            } px-4 py-2 focus:outline-none border`}
+          />
+          {!data.error ? "" : alert(data.error.username, "red")}
         </div>
         <div className="flex flex-col space-y-2 md:flex-row md:justify-between md:items-center">
           <div>

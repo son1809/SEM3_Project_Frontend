@@ -6,8 +6,6 @@ import { isAuthenticate } from "../auth/fetchApi";
 import { cartList } from "../productDetails/Mixins";
 import { subTotal, quantity, totalCost } from "./Mixins";
 
-const apiURL = process.env.REACT_APP_API_URL;
-
 const CartModal = () => {
   const navigate = useNavigate();
 
@@ -19,7 +17,6 @@ const CartModal = () => {
 
   useEffect(() => {
     fetchData();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -101,11 +98,11 @@ const CartModal = () => {
                       <div className="text-white flex space-x-2 my-4 items-center">
                         <img
                           className="w-16 h-16 object-cover object-center"
-                          src={`${apiURL}/uploads/products/${item.pImages[0]}`}
+                          src={item.imageUrl}
                           alt="cartProduct"
                         />
                         <div className="relative w-full flex flex-col">
-                          <div className="my-2">{item.pName}</div>
+                          <div className="my-2">{item.name}</div>
                           <div className="flex items-center justify-between">
                             <div className="flex items-center justify-between space-x-2">
                               <div className="text-sm text-gray-400">
@@ -113,22 +110,20 @@ const CartModal = () => {
                               </div>
                               <div className="flex items-end">
                                 <span className="text-sm text-gray-200">
-                                  {quantity(item._id)}
+                                  {quantity(item.id)}
                                 </span>
                               </div>
                             </div>
                             <div>
-                              {" "}
                               <span className="text-sm text-gray-400">
-                                Subtotoal :
+                                Subtotal :
                               </span>{" "}
-                              ${subTotal(item._id, item.pPrice)}.00
-                            </div>{" "}
-                            {/* SUbtotal Count */}
+                              ${subTotal(item.id, item.price)}.00
+                            </div>
                           </div>
                           {/* Cart Product Remove Button */}
                           <div
-                            onClick={(e) => removeCartProduct(item._id)}
+                            onClick={(e) => removeCartProduct(item.id)}
                             className="absolute top-0 right-0 text-white"
                           >
                             <svg
@@ -146,7 +141,7 @@ const CartModal = () => {
                           </div>
                         </div>
                       </div>
-                      {/* Cart Product Start */}
+                      {/* Cart Product End */}
                     </Fragment>
                   );
                 })}
