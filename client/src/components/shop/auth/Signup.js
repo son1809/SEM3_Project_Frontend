@@ -35,10 +35,10 @@ const Signup = (props) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-        })
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      })
       });
       if (!response.ok) {
         const errorText = await response.text();
