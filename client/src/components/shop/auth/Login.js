@@ -1,17 +1,15 @@
 import React, { Fragment, useState, useContext } from "react";
-import { loginReq } from "./fetchApi";
 import { LayoutContext } from "../index";
 import { useSnackbar } from 'notistack';
+
 const Login = (props) => {
-  const { data: layoutData, dispatch: layoutDispatch } = useContext(
-    LayoutContext
-  );
+  const { data: layoutData, dispatch: layoutDispatch } = useContext(LayoutContext);
 
   const [data, setData] = useState({
     email: "",
     password: "",
     error: false,
-    loading: true,
+    loading: false,
   });
 
   const alert = (msg) => <div className="text-xs text-red-500">{msg}</div>;
@@ -21,26 +19,36 @@ const Login = (props) => {
   const formSubmit = async () => {
     setData({ ...data, loading: true });
     try {
-      let responseData = await loginReq({
-        email: data.email,
-        password: data.password,
+      let response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: data.email, // backend yêu cầu trường "username"
+          password: data.password,
+        })
       });
-      if (responseData.error) {
+      if (!response.ok) {
+        const errorText = await response.text();
         setData({
           ...data,
           loading: false,
-          error: responseData.error,
+          error: errorText,
           password: "",
         });
-      } else if (responseData.token) {
+      } else {
+        const responseData = await response.json();
         setData({ email: "", password: "", loading: false, error: false });
         localStorage.setItem("jwt", JSON.stringify(responseData));
-       enqueueSnackbar('Login Completed Successfully..!', { variant: 'success' })
+        enqueueSnackbar('Login Completed Successfully..!', { variant: 'success' });
         window.location.href = "/";
-
-      }    
+      }
     } catch (error) {
-      console.log(error);
+      setData({
+        ...data,
+        loading: false,
+        error: "Đăng nhập thất bại",
+        password: "",
+      });
     }
   };
 
@@ -108,7 +116,7 @@ const Login = (props) => {
           </a>
         </div>
         <div
-          onClick={(e) => formSubmit()}
+          onClick={formSubmit}
           style={{ background: "#303031" }}
           className="font-medium px-4 py-2 text-white text-center cursor-pointer"
         >

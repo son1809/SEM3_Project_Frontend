@@ -1,13 +1,13 @@
 import React, { Fragment, useState } from "react";
-import { signupReq } from "./fetchApi";
 import { useSnackbar } from 'notistack';
+
 const Signup = (props) => {
   const [data, setData] = useState({
     name: "",
     email: "",
     password: "",
     cPassword: "",
-    error: false,
+    error: {},
     loading: false,
     success: false,
   });
@@ -16,6 +16,7 @@ const Signup = (props) => {
     <div className={`text-sm text-${type}-500`}>{msg}</div>
   );
   const { enqueueSnackbar } = useSnackbar();
+
   const formSubmit = async () => {
     setData({ ...data, loading: true });
     if (data.cPassword !== data.password) {
@@ -25,37 +26,48 @@ const Signup = (props) => {
           cPassword: "Password doesn't match",
           password: "Password doesn't match",
         },
+        loading: false,
       });
     }
     try {
-      let responseData = await signupReq({
-        name: data.name,
-        email: data.email,
-        password: data.password,
-        cPassword: data.cPassword,
+      let response = await fetch("/api/auth/register/customer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          password: data.password,
+        })
       });
-      if (responseData.error) {
+      if (!response.ok) {
+        const errorText = await response.text();
         setData({
           ...data,
           loading: false,
-          error: responseData.error,
+          error: { email: errorText },
           password: "",
           cPassword: "",
         });
-      } else if (responseData.success) {
+      } else {
         setData({
-          success: responseData.success,
+          success: "Đăng ký thành công",
           name: "",
           email: "",
           password: "",
           cPassword: "",
           loading: false,
-          error: false,
-        })
-        enqueueSnackbar('Account Created Successfully..!', { variant: 'success' })
+          error: {},
+        });
+        enqueueSnackbar('Account Created Successfully..!', { variant: 'success' });
       }
     } catch (error) {
-      console.log(error);
+      setData({
+        ...data,
+        loading: false,
+        error: { email: "Đăng ký thất bại" },
+        password: "",
+        cPassword: "",
+      });
     }
   };
 
@@ -84,7 +96,7 @@ const Signup = (props) => {
               data.error.name ? "border-red-500" : ""
             } px-4 py-2 focus:outline-none border`}
           />
-          {!data.error ? "" : alert(data.error.name, "red")}
+          {data.error.name ? alert(data.error.name, "red") : ""}
         </div>
         <div className="flex flex-col">
           <label htmlFor="email">
@@ -106,7 +118,7 @@ const Signup = (props) => {
               data.error.email ? "border-red-500" : ""
             } px-4 py-2 focus:outline-none border`}
           />
-          {!data.error ? "" : alert(data.error.email, "red")}
+          {data.error.email ? alert(data.error.email, "red") : ""}
         </div>
         <div className="flex flex-col">
           <label htmlFor="password">
@@ -128,7 +140,7 @@ const Signup = (props) => {
               data.error.password ? "border-red-500" : ""
             } px-4 py-2 focus:outline-none border`}
           />
-          {!data.error ? "" : alert(data.error.password, "red")}
+          {data.error.password ? alert(data.error.password, "red") : ""}
         </div>
         <div className="flex flex-col">
           <label htmlFor="cPassword">
@@ -151,7 +163,7 @@ const Signup = (props) => {
               data.error.cPassword ? "border-red-500" : ""
             } px-4 py-2 focus:outline-none border`}
           />
-          {!data.error ? "" : alert(data.error.cPassword, "red")}
+          {data.error.cPassword ? alert(data.error.cPassword, "red") : ""}
         </div>
         <div className="flex flex-col space-y-2 md:flex-row md:justify-between md:items-center">
           <div>
@@ -169,7 +181,7 @@ const Signup = (props) => {
           </a>
         </div>
         <div
-          onClick={(e) => formSubmit()}
+          onClick={formSubmit}
           style={{ background: "#303031" }}
           className="px-4 py-2 text-white text-center cursor-pointer font-medium"
         >
