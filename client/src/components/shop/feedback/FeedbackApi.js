@@ -18,3 +18,15 @@ export const getAllFeedbacks = async () => {
     console.error("Error fetching feedbacks:", error);
   }
 };
+
+export const getMyFeedbacks = async () => {
+  try {
+    const jwt = JSON.parse(localStorage.getItem("jwt"));
+    const res = await axios.get(`${apiURL}/api/feedback/my`, {
+      headers: { Authorization: `Bearer ${jwt.token}` }
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching my feedbacks:", error);
+  }
+};

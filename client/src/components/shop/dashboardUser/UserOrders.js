@@ -1,6 +1,7 @@
-import React, { Fragment, useEffect, useContext } from "react";
+import React, { Fragment, useEffect, useContext, useState } from "react";
 import moment from "moment";
 import { getOrderByUser, cancelOrder } from "./FetchApi";
+import { requestReturnOrReplacement } from "./ReturnOrReplacementApi";
 import Layout, { DashboardUserContext } from "./Layout";
 
 const TableHeader = () => {
@@ -22,7 +23,7 @@ const TableHeader = () => {
   );
 };
 
-const TableBody = ({ order, onCancel }) => {
+const TableBody = ({ order, onCancel, onReturnOrReplacement }) => {
   // Only allow cancel if not delivered/cancelled/shipped
   const canCancel =
     order.dispatchStatus &&
@@ -63,12 +64,18 @@ const TableBody = ({ order, onCancel }) => {
         <td className="p-2 text-center">
           {canCancel && (
             <button
-              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700"
+              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700 mr-2"
               onClick={() => onCancel(order.id)}
             >
               Cancel
             </button>
           )}
+          <button
+            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-700"
+            onClick={() => onReturnOrReplacement(order)}
+          >
+            Return/Replace
+          </button>
         </td>
       </tr>
     </Fragment>
@@ -78,6 +85,10 @@ const TableBody = ({ order, onCancel }) => {
 const OrdersComponent = () => {
   const { data, dispatch } = useContext(DashboardUserContext);
   const { OrderByUser: orders } = data;
+  const [showModal, setShowModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [form, setForm] = useState({ productId: "", requestType: "RETURN" });
+  const [submitting, setSubmitting] = useState(false);
 
   const fetchOrders = async () => {
     dispatch({ type: "loading", payload: true });
@@ -104,6 +115,28 @@ const OrdersComponent = () => {
       console.log(error);
     }
     dispatch({ type: "loading", payload: false });
+  };
+
+  const handleReturnOrReplacement = (order) => {
+    setSelectedOrder(order);
+    setShowModal(true);
+    setForm({ productId: order.items[0]?.productId || "", requestType: "RETURN" });
+  };
+
+  const handleFormChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    await requestReturnOrReplacement({
+      orderId: selectedOrder.id,
+      productId: form.productId,
+      requestType: form.requestType,
+    });
+    setSubmitting(false);
+    setShowModal(false);
   };
 
   if (data.loading) {
@@ -140,7 +173,7 @@ const OrdersComponent = () => {
               <tbody>
                 {orders && orders.length > 0 ? (
                   orders.map((item, i) => {
-                    return <TableBody key={i} order={item} onCancel={handleCancel} />;
+                    return <TableBody key={i} order={item} onCancel={handleCancel} onReturnOrReplacement={handleReturnOrReplacement} />;
                   })
                 ) : (
                   <tr>
@@ -160,6 +193,39 @@ const OrdersComponent = () => {
           </div>
         </div>
       </div>
+      {/* Modal for Return/Replacement */}
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-96">
+            <h3 className="text-lg font-semibold mb-4">Request Return/Replacement</h3>
+            <form onSubmit={handleFormSubmit}>
+              <div className="mb-2">
+                <label className="block mb-1">Product</label>
+                <select name="productId" value={form.productId} onChange={handleFormChange} className="w-full border p-2 rounded">
+                  {selectedOrder.items.map((item) => (
+                    <option key={item.productId} value={item.productId}>
+                      {item.productName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-2">
+                <label className="block mb-1">Request Type</label>
+                <select name="requestType" value={form.requestType} onChange={handleFormChange} className="w-full border p-2 rounded">
+                  <option value="RETURN">Return</option>
+                  <option value="REPLACEMENT">Replacement</option>
+                </select>
+              </div>
+              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded" disabled={submitting}>
+                {submitting ? "Submitting..." : "Submit"}
+              </button>
+              <button type="button" className="ml-2 px-4 py-2 rounded border" onClick={() => setShowModal(false)}>
+                Cancel
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </Fragment>
   );
 };

@@ -19,6 +19,9 @@ import {
 } from "./admin/auth";
 import { UserProfile, UserOrders, SettingUser } from "./shop/dashboardUser";
 import PaypalReturn from "./shop/order/PaypalReturn"; // <-- Add this import
+import MyReturnOrReplacement from "./shop/dashboardUser/MyReturnOrReplacement";
+import AllReturnOrReplacement from "./admin/orders/AllReturnOrReplacement";
+import MyFeedbacks from "./shop/feedback/MyFeedbacks";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -133,6 +136,32 @@ const AppRoutes = (props) => {
         />
         {/* User Dashboard End */}
 
+        {/* User Return/Replacement */}
+        <Route
+          path="/user/returns"
+          element={
+            <ProtectedRoute>
+              <MyReturnOrReplacement />
+            </ProtectedRoute>
+          }
+        />
+        {/* Admin Return/Replacement */}
+        <Route
+          path="/admin/returns"
+          element={
+            <AdminProtectedRoute>
+              <AllReturnOrReplacement />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/user/feedbacks"
+          element={
+            <ProtectedRoute>
+              <MyFeedbacks />
+            </ProtectedRoute>
+          }
+        />
         {/* 404 Page */}
         <Route path="*" element={<PageNotFound />} />
       </Routes>

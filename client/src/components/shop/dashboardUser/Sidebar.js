@@ -79,6 +79,28 @@ const Sidebar = (props) => {
           </div>
           <hr />
           <div
+            onClick={(e) => navigate("/user/feedbacks")}
+            className={`${
+              location.pathname === "/user/feedbacks"
+                ? "border-r-4 border-yellow-700 bg-gray-200"
+                : ""
+            }  px-4 py-4 hover:bg-gray-200 cursor-pointer`}
+          >
+            My Feedbacks
+          </div>
+          <hr />
+          <div
+            onClick={(e) => navigate("/user/returns")}
+            className={`${
+              location.pathname === "/user/returns"
+                ? "border-r-4 border-yellow-700 bg-gray-200"
+                : ""
+            }  px-4 py-4 hover:bg-gray-200 cursor-pointer`}
+          >
+            My Returns
+          </div>
+          <hr />
+          <div
             onClick={(e) => logout()}
             className={`${
               location.pathname === "/admin/dashboard/categories"
