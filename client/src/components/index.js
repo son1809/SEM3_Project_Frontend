@@ -11,6 +11,12 @@ import {
   CheckoutPage,
 } from "./shop";
 import { DashboardAdmin, Categories, Products, Orders } from "./admin";
+import {
+  AdminEmployeeLogin,
+  AdminEmployeeRegister,
+  ChangeEmployeePassword,
+  UserList,
+} from "./admin/auth";
 import { UserProfile, UserOrders, SettingUser } from "./shop/dashboardUser";
 import PaypalReturn from "./shop/order/PaypalReturn"; // <-- Add this import
 
@@ -36,6 +42,34 @@ const AppRoutes = (props) => {
         />
         <Route path="/paypal-return" element={<PaypalReturn />} /> {/* <-- Add this route */}
         {/* Shop & Public Routes End */}
+
+        {/* Admin Auth Routes */}
+        <Route path="/admin/login" element={<AdminEmployeeLogin />} />
+        <Route
+          path="/admin/register"
+          element={
+            <AdminProtectedRoute>
+              <AdminEmployeeRegister />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/change-password"
+          element={
+            <AdminProtectedRoute>
+              <ChangeEmployeePassword />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/users"
+          element={
+            <AdminProtectedRoute>
+              <UserList />
+            </AdminProtectedRoute>
+          }
+        />
+        {/* Admin Auth Routes End */}
 
         {/* Admin Routes */}
         <Route
