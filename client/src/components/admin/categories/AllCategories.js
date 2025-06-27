@@ -18,33 +18,30 @@ const AllCategory = (props) => {
     dispatch({ type: "loading", payload: true });
     let responseData = await getAllCategory();
     setTimeout(() => {
-      if (responseData && responseData.Categories) {
+      if (Array.isArray(responseData)) {
         dispatch({
           type: "fetchCategoryAndChangeState",
-          payload: responseData.Categories,
+          payload: responseData,
         });
         dispatch({ type: "loading", payload: false });
       }
     }, 1000);
   };
 
-  const deleteCategoryReq = async (cId) => {
-    let deleteC = await deleteCategory(cId);
-    if (deleteC.error) {
-      console.log(deleteC.error);
-    } else if (deleteC.success) {
-      console.log(deleteC.success);
+  const deleteCategoryReq = async (id) => {
+    let deleteC = await deleteCategory(id);
+    if (deleteC && deleteC.success) {
       fetchData();
     }
   };
 
   /* This method call the editmodal & dispatch category context */
-  const editCategory = (cId, type, des, status) => {
+  const editCategory = (id, type, description, status) => {
     if (type) {
       dispatch({
         type: "editCategoryModalOpen",
-        cId: cId,
-        des: des,
+        cId: id,
+        des: description,
         status: status,
       });
     }
@@ -54,16 +51,16 @@ const AllCategory = (props) => {
     return (
       <div className="flex items-center justify-center p-8">
         <svg
-          class="w-12 h-12 animate-spin text-gray-600"
+          className="w-12 h-12 animate-spin text-gray-600"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
           ></path>
         </svg>
@@ -92,10 +89,10 @@ const AllCategory = (props) => {
                 return (
                   <CategoryTable
                     category={item}
-                    editCat={(cId, type, des, status) =>
-                      editCategory(cId, type, des, status)
+                    editCat={(id, type, description, status) =>
+                      editCategory(id, type, description, status)
                     }
-                    deleteCat={(cId) => deleteCategoryReq(cId)}
+                    deleteCat={(id) => deleteCategoryReq(id)}
                     key={key}
                   />
                 );
@@ -126,47 +123,47 @@ const CategoryTable = ({ category, deleteCat, editCat }) => {
     <Fragment>
       <tr>
         <td className="p-2 text-left">
-          {category.cName.length > 20
-            ? category.cName.slice(0, 20) + "..."
-            : category.cName}
+          {category.name && category.name.length > 20
+            ? category.name.slice(0, 20) + "..."
+            : category.name}
         </td>
         <td className="p-2 text-left">
-          {category.cDescription.length > 30
-            ? category.cDescription.slice(0, 30) + "..."
-            : category.cDescription}
+          {category.description && category.description.length > 30
+            ? category.description.slice(0, 30) + "..."
+            : category.description}
         </td>
         <td className="p-2 text-center">
           <img
             className="w-12 h-12 object-cover object-center"
-            src={`${apiURL}/uploads/categories/${category.cImage}`}
+            src={category.imageUrl}
             alt=""
           />
         </td>
         <td className="p-2 text-center">
-          {category.cStatus === "Active" ? (
+          {category.status === "Active" ? (
             <span className="bg-green-200 rounded-full text-center text-xs px-2 font-semibold">
-              {category.cStatus}
+              {category.status}
             </span>
           ) : (
             <span className="bg-red-200 rounded-full text-center text-xs px-2 font-semibold">
-              {category.cStatus}
+              {category.status}
             </span>
           )}
         </td>
         <td className="p-2 text-center">
-          {moment(category.createdAt).format("lll")}
+          {category.createdAt ? moment(category.createdAt).format("lll") : ""}
         </td>
         <td className="p-2 text-center">
-          {moment(category.updatedAt).format("lll")}
+          {category.updatedAt ? moment(category.updatedAt).format("lll") : ""}
         </td>
         <td className="p-2 flex items-center justify-center">
           <span
-            onClick={(e) =>
+            onClick={() =>
               editCat(
-                category._id,
+                category.id,
                 true,
-                category.cDescription,
-                category.cStatus
+                category.description,
+                category.status
               )
             }
             className="cursor-pointer hover:bg-gray-200 rounded-lg p-2 mx-1"
@@ -186,7 +183,7 @@ const CategoryTable = ({ category, deleteCat, editCat }) => {
             </svg>
           </span>
           <span
-            onClick={(e) => deleteCat(category._id)}
+            onClick={() => deleteCat(category.id)}
             className="cursor-pointer hover:bg-gray-200 rounded-lg p-2 mx-1"
           >
             <svg

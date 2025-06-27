@@ -5,11 +5,11 @@ const BearerToken = () =>
   localStorage.getItem("jwt")
     ? JSON.parse(localStorage.getItem("jwt")).token
     : false;
-    
+
 const Headers = () => {
   return {
     headers: {
-      token: `Bearer ${BearerToken()}`,
+      Authorization: `Bearer ${BearerToken()}`,
     },
   };
 };
@@ -24,20 +24,20 @@ export const getAllCategory = async () => {
 };
 
 export const createCategory = async ({
-  cName,
-  cImage,
-  cDescription,
-  cStatus,
+  name,
+  imageFile,
+  description,
+  status,
 }) => {
   let formData = new FormData();
-  formData.append("cImage", cImage);
-  formData.append("cName", cName);
-  formData.append("cDescription", cDescription);
-  formData.append("cStatus", cStatus);
+  formData.append("name", name);
+  if (imageFile) formData.append("imageUrl", imageFile);
+  if (description) formData.append("description", description);
+  if (status) formData.append("status", status);
 
   try {
     let res = await axios.post(
-      `${apiURL}/api/category/add-category`,
+      `${apiURL}/api/category/add`,
       formData,
       Headers()
     );
@@ -47,12 +47,17 @@ export const createCategory = async ({
   }
 };
 
-export const editCategory = async (cId, des, status) => {
-  let data = { cId: cId, cDescription: des, cStatus: status };
+export const updateCategory = async (id, { name, imageFile, description, status }) => {
+  let formData = new FormData();
+  if (name) formData.append("name", name);
+  if (imageFile) formData.append("imageUrl", imageFile);
+  if (description) formData.append("description", description);
+  if (status) formData.append("status", status);
+
   try {
-    let res = await axios.post(
-      `${apiURL}/api/category/edit-category`,
-      data,
+    let res = await axios.put(
+      `${apiURL}/api/category/${id}`,
+      formData,
       Headers()
     );
     return res.data;
@@ -61,11 +66,10 @@ export const editCategory = async (cId, des, status) => {
   }
 };
 
-export const deleteCategory = async (cId) => {
+export const deleteCategory = async (id) => {
   try {
-    let res = await axios.post(
-      `${apiURL}/api/category/delete-category`,
-      { cId },
+    let res = await axios.delete(
+      `${apiURL}/api/category/${id}`,
       Headers()
     );
     return res.data;

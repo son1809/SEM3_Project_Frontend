@@ -12,6 +12,7 @@ import {
 } from "./shop";
 import { DashboardAdmin, Categories, Products, Orders } from "./admin";
 import { UserProfile, UserOrders, SettingUser } from "./shop/dashboardUser";
+import PaypalReturn from "./shop/order/PaypalReturn"; // <-- Add this import
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -33,6 +34,7 @@ const AppRoutes = (props) => {
             </CartProtectedRoute>
           }
         />
+        <Route path="/paypal-return" element={<PaypalReturn />} /> {/* <-- Add this route */}
         {/* Shop & Public Routes End */}
 
         {/* Admin Routes */}

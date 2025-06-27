@@ -9,6 +9,80 @@ const getAuthHeader = () => {
   return { Authorization: `Bearer ${token}` };
 };
 
+// CATEGORY CRUD
+
+// Get all categories
+export const getAllCategories = async () => {
+  try {
+    const res = await axios.get(`${apiURL}/api/category`, {
+      headers: getAuthHeader(),
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error getting categories:", error);
+  }
+};
+
+// Get category by id
+export const getCategoryById = async (id) => {
+  try {
+    const res = await axios.get(`${apiURL}/api/category/${id}`, {
+      headers: getAuthHeader(),
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error getting category by id:", error);
+  }
+};
+
+// Add new category
+export const addCategory = async (categoryData) => {
+  try {
+    const res = await axios.post(`${apiURL}/api/category/add`, categoryData, {
+      headers: { ...getAuthHeader(), "Content-Type": "application/json" },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error adding category:", error);
+  }
+};
+
+// Update category
+export const updateCategory = async (id, categoryData) => {
+  try {
+    const res = await axios.put(`${apiURL}/api/category/${id}`, categoryData, {
+      headers: { ...getAuthHeader(), "Content-Type": "application/json" },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error updating category:", error);
+  }
+};
+
+// Delete category
+export const deleteCategory = async (id) => {
+  try {
+    const res = await axios.delete(`${apiURL}/api/category/${id}`, {
+      headers: getAuthHeader(),
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error deleting category:", error);
+  }
+};
+
+// Get products by category (correct endpoint)
+export const getProductsByCategory = async (catId) => {
+  try {
+    const res = await axios.get(`${apiURL}/api/category/${catId}/products`, {
+      headers: getAuthHeader(),
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error getting products by category:", error);
+  }
+};
+
 // Create order
 export const createOrder = async (orderData) => {
   try {

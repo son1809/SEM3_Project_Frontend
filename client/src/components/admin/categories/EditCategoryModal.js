@@ -1,45 +1,47 @@
 import React, { Fragment, useContext, useState, useEffect } from "react";
 import { CategoryContext } from "./index";
-import { editCategory, getAllCategory } from "./FetchApi";
+import { updateCategory, getAllCategory } from "./FetchApi";
 
 const EditCategoryModal = (props) => {
   const { data, dispatch } = useContext(CategoryContext);
 
-  const [des, setDes] = useState("");
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [status, setStatus] = useState("");
+  const [imageFile, setImageFile] = useState("");
   const [cId, setCid] = useState("");
 
   useEffect(() => {
-    setDes(data.editCategoryModal.des);
+    setDescription(data.editCategoryModal.des);
     setStatus(data.editCategoryModal.status);
     setCid(data.editCategoryModal.cId);
-
+    // Optionally setName and setImageFile if you store them in modal state
+    // setName(data.editCategoryModal.name);
+    // setImageFile(data.editCategoryModal.imageUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data.editCategoryModal.modal]);
 
   const fetchData = async () => {
     let responseData = await getAllCategory();
-    if (responseData.Categories) {
+    if (Array.isArray(responseData)) {
       dispatch({
         type: "fetchCategoryAndChangeState",
-        payload: responseData.Categories,
+        payload: responseData,
       });
     }
   };
 
   const submitForm = async () => {
     dispatch({ type: "loading", payload: true });
-    let edit = await editCategory(cId, des, status);
-    if (edit.error) {
-      console.log(edit.error);
-      dispatch({ type: "loading", payload: false });
-    } else if (edit.success) {
-      console.log(edit.success);
+    let edit = await updateCategory(cId, { name, imageFile, description, status });
+    if (edit && edit.id) {
       dispatch({ type: "editCategoryModalClose" });
       setTimeout(() => {
         fetchData();
         dispatch({ type: "loading", payload: false });
       }, 1000);
+    } else if (edit && edit.error) {
+      dispatch({ type: "loading", payload: false });
     }
   };
 
@@ -63,7 +65,7 @@ const EditCategoryModal = (props) => {
         <div className="relative bg-white w-11/12 md:w-3/6 shadow-lg flex flex-col items-center space-y-4  overflow-y-auto px-4 py-4 md:px-8">
           <div className="flex items-center justify-between w-full pt-4">
             <span className="text-left font-semibold text-2xl tracking-wider">
-              Add Category
+              Edit Category
             </span>
             {/* Close Modal */}
             <span
@@ -88,15 +90,33 @@ const EditCategoryModal = (props) => {
             </span>
           </div>
           <div className="flex flex-col space-y-1 w-full">
+            <label htmlFor="name">Category Name</label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="px-4 py-2 border focus:outline-none"
+              type="text"
+            />
+          </div>
+          <div className="flex flex-col space-y-1 w-full">
             <label htmlFor="description">Category Description</label>
             <textarea
-              value={des}
-              onChange={(e) => setDes(e.target.value)}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="px-4 py-2 border focus:outline-none"
               name="description"
               id="description"
               cols={5}
               rows={5}
+            />
+          </div>
+          <div className="flex flex-col space-y-1 w-full">
+            <label htmlFor="imageUrl">Category Image</label>
+            <input
+              accept=".jpg, .jpeg, .png"
+              onChange={(e) => setImageFile(e.target.files[0])}
+              className="px-4 py-2 border focus:outline-none"
+              type="file"
             />
           </div>
           <div className="flex flex-col space-y-1 w-full">
@@ -119,10 +139,10 @@ const EditCategoryModal = (props) => {
           <div className="flex flex-col space-y-1 w-full pb-4 md:pb-6">
             <button
               style={{ background: "#303031" }}
-              onClick={(e) => submitForm()}
+              onClick={submitForm}
               className="rounded-full bg-gray-800 text-gray-100 text-lg font-medium py-2"
             >
-              Create category
+              Update category
             </button>
           </div>
         </div>

@@ -93,7 +93,7 @@ export const deleteProduct = async (id) => {
 // Get products by category
 export const productByCategory = async (catId) => {
   try {
-    const res = await axios.get(`${apiURL}/api/product/category/${catId}`);
+    const res = await axios.get(`${apiURL}/api/product/${catId}/products`);
     return { Products: res.data };
   } catch (error) {
     console.error("Error getting products by category:", error);

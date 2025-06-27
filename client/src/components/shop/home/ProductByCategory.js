@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../layout";
-import { productByCategory } from "../../admin/products/FetchApi";
+import { getProductsByCategory } from "../order/FetchApi";
 
 const Submenu = ({ category }) => {
   const navigate = useNavigate();
@@ -92,9 +92,9 @@ const PageComponent = () => {
 
   const fetchData = async () => {
     try {
-      let responseData = await productByCategory(catId);
-      if (responseData && responseData.Products) {
-        setProducts(responseData.Products);
+      let responseData = await getProductsByCategory(catId);
+      if (Array.isArray(responseData)) {
+        setProducts(responseData);
       }
     } catch (error) {
       console.log(error);

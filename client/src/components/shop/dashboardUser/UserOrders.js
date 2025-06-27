@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useContext } from "react";
 import moment from "moment";
-import { getOrderByUser } from "./FetchApi";
+import { getOrderByUser, cancelOrder } from "./FetchApi";
 import Layout, { DashboardUserContext } from "./Layout";
 
 const TableHeader = () => {
@@ -15,13 +15,19 @@ const TableHeader = () => {
           <th className="px-4 py-2 border">Status</th>
           <th className="px-4 py-2 border">Total</th>
           <th className="px-4 py-2 border">Items</th>
+          <th className="px-4 py-2 border">Actions</th>
         </tr>
       </thead>
     </Fragment>
   );
 };
 
-const TableBody = ({ order }) => {
+const TableBody = ({ order, onCancel }) => {
+  // Only allow cancel if not delivered/cancelled/shipped
+  const canCancel =
+    order.dispatchStatus &&
+    !["Delivered", "Cancelled", "Shipped"].includes(order.dispatchStatus);
+
   return (
     <Fragment>
       <tr className="border-b">
@@ -54,6 +60,16 @@ const TableBody = ({ order }) => {
             <span>No items</span>
           )}
         </td>
+        <td className="p-2 text-center">
+          {canCancel && (
+            <button
+              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-700"
+              onClick={() => onCancel(order.id)}
+            >
+              Cancel
+            </button>
+          )}
+        </td>
       </tr>
     </Fragment>
   );
@@ -63,20 +79,32 @@ const OrdersComponent = () => {
   const { data, dispatch } = useContext(DashboardUserContext);
   const { OrderByUser: orders } = data;
 
+  const fetchOrders = async () => {
+    dispatch({ type: "loading", payload: true });
+    try {
+      const orders = await getOrderByUser();
+      dispatch({ type: "OrderByUser", payload: orders });
+    } catch (error) {
+      console.log(error);
+    }
+    dispatch({ type: "loading", payload: false });
+  };
+
   useEffect(() => {
-    const fetchOrders = async () => {
-      dispatch({ type: "loading", payload: true });
-      try {
-        const orders = await getOrderByUser();
-        dispatch({ type: "OrderByUser", payload: orders });
-      } catch (error) {
-        console.log(error);
-      }
-      dispatch({ type: "loading", payload: false });
-    };
     fetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleCancel = async (orderId) => {
+    dispatch({ type: "loading", payload: true });
+    try {
+      await cancelOrder(orderId);
+      fetchOrders();
+    } catch (error) {
+      console.log(error);
+    }
+    dispatch({ type: "loading", payload: false });
+  };
 
   if (data.loading) {
     return (
@@ -112,12 +140,12 @@ const OrdersComponent = () => {
               <tbody>
                 {orders && orders.length > 0 ? (
                   orders.map((item, i) => {
-                    return <TableBody key={i} order={item} />;
+                    return <TableBody key={i} order={item} onCancel={handleCancel} />;
                   })
                 ) : (
                   <tr>
                     <td
-                      colSpan="7"
+                      colSpan="8"
                       className="text-xl text-center font-semibold py-8"
                     >
                       No order found

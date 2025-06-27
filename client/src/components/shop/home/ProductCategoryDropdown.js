@@ -5,8 +5,6 @@ import { getAllCategory } from "../../admin/categories/FetchApi";
 import { getAllProduct, productByPrice } from "../../admin/products/FetchApi";
 import "./style.css";
 
-const apiURL = process.env.REACT_APP_API_URL;
-
 const CategoryList = () => {
   const navigate = useNavigate();
   const { data } = useContext(HomeContext);
@@ -19,8 +17,8 @@ const CategoryList = () => {
   const fetchData = async () => {
     try {
       let responseData = await getAllCategory();
-      if (responseData && responseData.Categories) {
-        setCategories(responseData.Categories);
+      if (Array.isArray(responseData)) {
+        setCategories(responseData);
       }
     } catch (error) {
       console.log(error);
@@ -36,16 +34,16 @@ const CategoryList = () => {
             return (
               <Fragment key={index}>
                 <div
-                  onClick={(e) =>
-                    navigate(`/products/category/${item._id}`)
+                  onClick={() =>
+                    navigate(`/products/category/${item.id}`)
                   }
                   className="col-span-1 m-2 flex flex-col items-center justify-center space-y-2 cursor-pointer"
                 >
                   <img
-                    src={`${apiURL}/uploads/categories/${item.cImage}`}
+                    src={item.imageUrl}
                     alt="pic"
                   />
-                  <div className="font-medium">{item.cName}</div>
+                  <div className="font-medium">{item.name}</div>
                 </div>
               </Fragment>
             );

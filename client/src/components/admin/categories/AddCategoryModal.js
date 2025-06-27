@@ -10,20 +10,20 @@ const AddCategoryModal = (props) => {
   );
 
   const [fData, setFdata] = useState({
-    cName: "",
-    cDescription: "",
-    cImage: "",
-    cStatus: "Active",
+    name: "",
+    description: "",
+    imageFile: "",
+    status: "Active",
     success: false,
     error: false,
   });
 
   const fetchData = async () => {
     let responseData = await getAllCategory();
-    if (responseData.Categories) {
+    if (Array.isArray(responseData)) {
       dispatch({
         type: "fetchCategoryAndChangeState",
-        payload: responseData.Categories,
+        payload: responseData,
       });
     }
   };
@@ -36,45 +36,42 @@ const AddCategoryModal = (props) => {
 
   const submitForm = async (e) => {
     dispatch({ type: "loading", payload: true });
-    // Reset and prevent the form
     e.preventDefault();
     e.target.reset();
 
-    if (!fData.cImage) {
+    if (!fData.imageFile) {
       dispatch({ type: "loading", payload: false });
       return setFdata({ ...fData, error: "Please upload a category image" });
     }
 
     try {
       let responseData = await createCategory(fData);
-      if (responseData.success) {
+      if (responseData && responseData.id) {
         fetchData();
         setFdata({
-          ...fData,
-          cName: "",
-          cDescription: "",
-          cImage: "",
-          cStatus: "Active",
-          success: responseData.success,
+          name: "",
+          description: "",
+          imageFile: "",
+          status: "Active",
+          success: "Category created successfully!",
           error: false,
         });
         dispatch({ type: "loading", payload: false });
         setTimeout(() => {
           setFdata({
-            ...fData,
-            cName: "",
-            cDescription: "",
-            cImage: "",
-            cStatus: "Active",
+            name: "",
+            description: "",
+            imageFile: "",
+            status: "Active",
             success: false,
             error: false,
           });
         }, 2000);
-      } else if (responseData.error) {
+      } else if (responseData && responseData.error) {
         setFdata({ ...fData, success: false, error: responseData.error });
         dispatch({ type: "loading", payload: false });
         setTimeout(() => {
-          return setFdata({ ...fData, error: false, success: false });
+          setFdata({ ...fData, error: false, success: false });
         }, 2000);
       }
     } catch (error) {
@@ -130,7 +127,7 @@ const AddCategoryModal = (props) => {
           </div>
           {fData.error ? alert(fData.error, "red") : ""}
           {fData.success ? alert(fData.success, "green") : ""}
-          <form className="w-full" onSubmit={(e) => submitForm(e)}>
+          <form className="w-full" onSubmit={submitForm}>
             <div className="flex flex-col space-y-1 w-full py-4">
               <label htmlFor="name">Category Name</label>
               <input
@@ -139,10 +136,10 @@ const AddCategoryModal = (props) => {
                     ...fData,
                     success: false,
                     error: false,
-                    cName: e.target.value,
+                    name: e.target.value,
                   })
                 }
-                value={fData.cName}
+                value={fData.name}
                 className="px-4 py-2 border focus:outline-none"
                 type="text"
               />
@@ -155,10 +152,10 @@ const AddCategoryModal = (props) => {
                     ...fData,
                     success: false,
                     error: false,
-                    cDescription: e.target.value,
+                    description: e.target.value,
                   })
                 }
-                value={fData.cDescription}
+                value={fData.description}
                 className="px-4 py-2 border focus:outline-none"
                 name="description"
                 id="description"
@@ -168,7 +165,7 @@ const AddCategoryModal = (props) => {
             </div>
             {/* Image Field & function */}
             <div className="flex flex-col space-y-1 w-full">
-              <label htmlFor="name">Category Image</label>
+              <label htmlFor="imageUrl">Category Image</label>
               <input
                 accept=".jpg, .jpeg, .png"
                 onChange={(e) => {
@@ -176,7 +173,7 @@ const AddCategoryModal = (props) => {
                     ...fData,
                     success: false,
                     error: false,
-                    cImage: e.target.files[0],
+                    imageFile: e.target.files[0],
                   });
                 }}
                 className="px-4 py-2 border focus:outline-none"
@@ -192,9 +189,10 @@ const AddCategoryModal = (props) => {
                     ...fData,
                     success: false,
                     error: false,
-                    cStatus: e.target.value,
+                    status: e.target.value,
                   })
                 }
+                value={fData.status}
                 className="px-4 py-2 border focus:outline-none"
                 id="status"
               >

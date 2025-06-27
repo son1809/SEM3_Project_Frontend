@@ -1,4 +1,4 @@
-import { createOrder } from "./FetchApi";
+import { createOrder, startPayment } from "./FetchApi";
 
 // Fetch cart products
 export const fetchData = async (cartListProduct, dispatch) => {
@@ -44,17 +44,21 @@ export const pay = async (
 
   try {
     dispatch({ type: "loading", payload: true });
-    let response = await createOrder(orderData);
-    if (response && response.id) {
-      localStorage.setItem("cart", JSON.stringify([]));
-      dispatch({ type: "cartProduct", payload: null });
-      dispatch({ type: "cartTotalCost", payload: null });
-      dispatch({ type: "orderSuccess", payload: true });
-      setState({ ...state, error: null, success: "Order placed successfully!" });
-      dispatch({ type: "loading", payload: false });
-      navigate("/dashboard/orders");
-    } else if (response && response.error) {
-      setState({ ...state, error: response.error });
+    let order = await createOrder(orderData);
+    if (order && order.id) {
+      // Start PayPal payment
+      let payment = await startPayment({
+        orderId: order.id,
+        amount: order.totalAmount,
+      });
+      if (payment && payment.payUrl) {
+        window.location.href = payment.payUrl; // Redirect to PayPal
+      } else {
+        setState({ ...state, error: "Payment initiation failed" });
+        dispatch({ type: "loading", payload: false });
+      }
+    } else if (order && order.error) {
+      setState({ ...state, error: order.error });
       dispatch({ type: "loading", payload: false });
     }
   } catch (error) {
