@@ -11,13 +11,19 @@ const HomeComponent = () => {
   return (
     <Fragment>
       <Slider />
-      {/* Category, Search & Filter Section */}
-      <section className="m-4 md:mx-8 md:my-6">
+
+      {/* Category Section */}
+      <section className="px-4 md:px-10 mt-6">
+        <h2 className="text-xl font-semibold text-blue-900 mb-4">Featured Categories</h2>
         <ProductCategory />
       </section>
-      {/* Product Section */}
-      <section className="m-4 md:mx-8 md:my-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        <SingleProduct />
+
+      {/* Suggested Product Section */}
+      <section className="px-4 md:px-10 mt-10">
+        <h2 className="text-xl font-semibold text-blue-900 mb-4">Recommended For You</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <SingleProduct />
+        </div>
       </section>
     </Fragment>
   );

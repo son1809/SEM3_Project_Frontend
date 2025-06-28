@@ -19,6 +19,7 @@ import PaypalReturn from "./shop/order/PaypalReturn"; // <-- Add this import
 import MyReturnOrReplacement from "./shop/dashboardUser/MyReturnOrReplacement";
 import AllReturnOrReplacement from "./admin/orders/AllReturnOrReplacement";
 import MyFeedbacks from "./shop/feedback/MyFeedbacks";
+import ProductByCategory from "./shop/home/ProductByCategory";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 

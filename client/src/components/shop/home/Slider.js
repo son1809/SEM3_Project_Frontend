@@ -1,28 +1,32 @@
-import React, { Fragment, useEffect, useContext, useState } from "react";
-import OrderSuccessMessage from "./OrderSuccessMessage";
-import { HomeContext } from "./";
-import { prevSlide, nextSlide } from "./Mixins";
+import React, { useState, useEffect, Fragment } from "react";
 
-const apiURL = process.env.REACT_APP_API_URL;
+const images = [
+  "https://source.unsplash.com/1600x500/?shopping,store",
+  "https://source.unsplash.com/1600x500/?handmade,art",
+  "https://source.unsplash.com/1600x500/?gift,craft",
+];
 
-const Slider = (props) => {
-  const { data, dispatch } = useContext(HomeContext);
-  const [slide, setSlide] = useState(0);
+const Slider = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
-    // Remove sliderImages(dispatch)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 3000);
+    return () => clearInterval(timer);
   }, []);
 
   return (
     <Fragment>
-      <div className="relative mt-16 bg-gray-100 border-2">
-        {/* Remove all sliderImages UI, just show placeholder */}
-        <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center text-xl font-light w-full bg-orange-200 rounded py-2">
-          No slide image found
+      <div className="w-full mt-4">
+        <div className="overflow-hidden rounded-lg shadow-md">
+          <img
+            src={images[currentIndex]}
+            alt="Banner"
+            className="w-full h-60 object-cover transition-all duration-700"
+          />
         </div>
       </div>
-      <OrderSuccessMessage />
     </Fragment>
   );
 };
