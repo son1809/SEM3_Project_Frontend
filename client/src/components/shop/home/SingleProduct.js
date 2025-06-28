@@ -1,82 +1,34 @@
-import React, { Fragment, useState, useEffect, useContext } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllProduct } from "../../admin/products/FetchApi";
-import { HomeContext } from "./index";
 
-const SingleProduct = (props) => {
-  const { data, dispatch } = useContext(HomeContext);
-  const { products } = data;
+const SingleProduct = ({ product }) => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const fetchData = async () => {
-    dispatch({ type: "loading", payload: true });
-    try {
-      let responseData = await getAllProduct();
-      setTimeout(() => {
-        if (responseData && responseData.Products) {
-          dispatch({ type: "setProducts", payload: responseData.Products });
-          dispatch({ type: "loading", payload: false });
-        }
-      }, 500);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  if (data.loading) {
-    return (
-      <div className="col-span-2 md:col-span-3 lg:col-span-4 flex items-center justify-center py-24">
-        <svg
-          className="w-12 h-12 animate-spin text-gray-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-          ></path>
-        </svg>
-      </div>
-    );
-  }
+  if (!product) return null;
+  // Capitalize first letter of product name
+  const displayName =
+    product.name && product.name.charAt(0).toUpperCase() + product.name.slice(1);
   return (
-    <Fragment>
-      {products && products.length > 0 ? (
-        products.map((item, index) => {
-          return (
-            <Fragment key={index}>
-              <div className="relative col-span-1 m-2">
-                <img
-                  onClick={(e) => navigate(`/products/${item.id}`)}
-                  className="w-full object-cover object-center cursor-pointer"
-                  src={item.imageUrl}
-                  alt=""
-                />
-                <div className="flex items-center justify-between mt-2">
-                  <div className="text-gray-600 font-light truncate">
-                    {item.name}
-                  </div>
-                </div>
-                <div>${item.price}.00</div>
-              </div>
-            </Fragment>
-          );
-        })
-      ) : (
-        <div className="col-span-2 md:col-span-3 lg:col-span-4 flex items-center justify-center py-24 text-2xl">
-          No product found
+    <div className="relative col-span-1 m-2 flex flex-col items-center bg-white rounded-lg shadow hover:shadow-lg transition-shadow h-full min-h-[260px]">
+      <div
+        className="w-full flex items-center justify-center overflow-hidden rounded-t-lg"
+        style={{ aspectRatio: "4/5", background: "#f3f4f6" }}
+      >
+        <img
+          onClick={() => navigate(`/products/${product.id}`)}
+          className="object-cover object-center w-4/5 h-4/5 max-h-48 max-w-xs cursor-pointer transition-transform duration-200 hover:scale-105"
+          src={product.imageUrl}
+          alt={displayName}
+        />
+      </div>
+      <div className="flex flex-col flex-1 w-full px-2 py-2 justify-between">
+        <div className="text-gray-800 font-medium truncate text-base md:text-lg mb-1 text-center">
+          {displayName}
         </div>
-      )}
-    </Fragment>
+        <div className="text-yellow-700 font-bold text-lg md:text-xl text-center">
+          ${product.price}.00
+        </div>
+      </div>
+    </div>
   );
 };
 
