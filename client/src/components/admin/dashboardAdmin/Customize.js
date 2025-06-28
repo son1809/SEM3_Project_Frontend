@@ -1,6 +1,6 @@
-import React, { Fragment, useContext, useEffect } from "react";
+import React, { Fragment, useContext } from "react";
 import { DashboardContext } from "./";
-import { uploadImage, sliderImages, deleteImage } from "./Action";
+import { uploadImage, deleteImage } from "./Action";
 
 const apiURL = process.env.REACT_APP_API_URL;
 
@@ -121,11 +121,6 @@ const UploadImageSection = () => {
 const AllImages = () => {
   const { data, dispatch } = useContext(DashboardContext);
 
-  useEffect(() => {
-    sliderImages(dispatch);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const deleteImageReq = (id) => {
     deleteImage(id, dispatch);
   };
@@ -153,43 +148,9 @@ const AllImages = () => {
         ""
       )}
       <div className="grid grid-cols-1 md:grid md:grid-cols-2 lg:grid-cols-3 my-4">
-        {data.sliderImages.length > 0 ? (
-          data.sliderImages.map((item, index) => {
-            return (
-              <div key={index} className="relative col-span-1 m-2 border">
-                <img
-                  className="w-full md:h-32 object-center object-cover"
-                  src={`${apiURL}/uploads/customize/${item.slideImage}`}
-                  alt="sliderImages"
-                />
-                <span
-                  onClick={(e) => deleteImageReq(item._id)}
-                  style={{ background: "#303031" }}
-                  className="absolute top-0 right-0 m-1 text-white cursor-pointer rounded-full p-1"
-                >
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </span>
-              </div>
-            );
-          })
-        ) : (
-          <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center text-xl font-light w-full bg-orange-200 rounded py-2">
-            No slide image found
-          </div>
-        )}
+        <div className="col-span-1 md:col-span-2 lg:col-span-3 text-center text-xl font-light w-full bg-orange-200 rounded py-2">
+          No slide image found
+        </div>
       </div>
     </Fragment>
   );

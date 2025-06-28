@@ -10,7 +10,7 @@ import { getSingleProduct } from "./FetchApi";
 
 const AllReviews = (props) => {
   const { data, dispatch } = useContext(LayoutContext);
-  const { pRatingsReviews } = data.singleProductDetail;
+  const { pRatingsReviews = [] } = data.singleProductDetail || {};
   let { id } = useParams(); // Prodduct Id
 
   const [fData, setFdata] = useState({

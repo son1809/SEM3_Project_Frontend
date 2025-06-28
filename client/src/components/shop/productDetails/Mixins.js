@@ -69,7 +69,9 @@ export const addToCart = (
   setQuantitiy,
   setAlertq,
   fetchData,
-  totalCost
+  totalCost,
+  name,
+  imageUrl
 ) => {
   let isObj = false;
   let cart = localStorage.getItem("cart")
@@ -82,11 +84,11 @@ export const addToCart = (
       }
     });
     if (!isObj) {
-      cart.push({ id, quantitiy, price });
+      cart.push({ id, quantitiy, price, name, imageUrl });
       localStorage.setItem("cart", JSON.stringify(cart));
     }
   } else {
-    cart.push({ id, quantitiy, price });
+    cart.push({ id, quantitiy, price, name, imageUrl });
     localStorage.setItem("cart", JSON.stringify(cart));
   }
   layoutDispatch({ type: "inCart", payload: cartList() });

@@ -1,10 +1,8 @@
 import React, { Fragment, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { LayoutContext } from "../index";
-import { cartListProduct } from "./FetchApi";
-import { isAuthenticate } from "../auth/fetchApi";
 import { cartList } from "../productDetails/Mixins";
-import { subTotal, quantity, totalCost } from "./Mixins";
+import { isAuthenticate } from "../auth/fetchApi";
 
 const CartModal = () => {
   const navigate = useNavigate();
@@ -16,20 +14,37 @@ const CartModal = () => {
     dispatch({ type: "cartModalToggle", payload: !data.cartModal });
 
   useEffect(() => {
-    fetchData();
+    fetchCartFromLocalStorage();
+    // Listen for cart changes in localStorage
+    const onStorage = (e) => {
+      if (e.key === "cart") fetchCartFromLocalStorage();
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchData = async () => {
-    try {
-      let responseData = await cartListProduct();
-      if (responseData && responseData.Products) {
-        dispatch({ type: "cartProduct", payload: responseData.Products });
-        dispatch({ type: "cartTotalCost", payload: totalCost() });
+  const fetchCartFromLocalStorage = () => {
+    let cart = localStorage.getItem("cart") ? JSON.parse(localStorage.getItem("cart")) : [];
+    // Try to enrich cart items with product info from last viewed product list (if available)
+    let productCache = localStorage.getItem("productCache") ? JSON.parse(localStorage.getItem("productCache")) : [];
+    const enrichedCart = cart.map((item) => {
+      // Prefer item.name/imageUrl if present, else try to find in cache
+      let name = item.name;
+      let imageUrl = item.imageUrl;
+      if (!name || !imageUrl) {
+        const prod = productCache.find((p) => p.id === item.id);
+        if (prod) {
+          name = name || prod.name;
+          imageUrl = imageUrl || prod.imageUrl;
+        }
       }
-    } catch (error) {
-      console.log(error);
-    }
+      return { ...item, name, imageUrl };
+    });
+    dispatch({ type: "cartProduct", payload: enrichedCart });
+    // Calculate total cost
+    const total = enrichedCart.reduce((sum, item) => sum + (item.price * (item.quantitiy || item.quantity || 1)), 0);
+    dispatch({ type: "cartTotalCost", payload: total });
   };
 
   const removeCartProduct = (id) => {
@@ -39,13 +54,12 @@ const CartModal = () => {
     if (cart.length !== 0) {
       cart = cart.filter((item) => item.id !== id);
       localStorage.setItem("cart", JSON.stringify(cart));
-      fetchData();
+      fetchCartFromLocalStorage();
       dispatch({ type: "inCart", payload: cartList() });
-      dispatch({ type: "cartTotalCost", payload: totalCost() });
     }
     if (cart.length === 0) {
       dispatch({ type: "cartProduct", payload: null });
-      fetchData();
+      fetchCartFromLocalStorage();
       dispatch({ type: "inCart", payload: cartList() });
     }
   };
@@ -89,8 +103,7 @@ const CartModal = () => {
               </div>
             </div>
             <div className="m-4 flex-col">
-              {products &&
-                products.length !== 0 &&
+              {products && products.length > 0 ? (
                 products.map((item, index) => {
                   return (
                     <Fragment key={index}>
@@ -110,7 +123,7 @@ const CartModal = () => {
                               </div>
                               <div className="flex items-end">
                                 <span className="text-sm text-gray-200">
-                                  {quantity(item.id)}
+                                  {item.quantitiy || item.quantity || 1}
                                 </span>
                               </div>
                             </div>
@@ -118,7 +131,7 @@ const CartModal = () => {
                               <span className="text-sm text-gray-400">
                                 Subtotal :
                               </span>{" "}
-                              ${subTotal(item.id, item.price)}.00
+                              ${item.price * (item.quantitiy || item.quantity || 1)}.00
                             </div>
                           </div>
                           {/* Cart Product Remove Button */}
@@ -144,9 +157,8 @@ const CartModal = () => {
                       {/* Cart Product End */}
                     </Fragment>
                   );
-                })}
-
-              {products === null && (
+                })
+              ) : (
                 <div className="m-4 flex-col text-white text-xl text-center">
                   No product in cart
                 </div>
@@ -160,7 +172,7 @@ const CartModal = () => {
             >
               Continue shopping
             </div>
-            {data.cartTotalCost ? (
+            {data.cartTotalCost > 0 ? (
               <Fragment>
                 {isAuthenticate() ? (
                   <div

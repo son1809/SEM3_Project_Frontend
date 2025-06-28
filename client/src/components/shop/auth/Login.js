@@ -31,7 +31,7 @@ const Login = (props) => {
           error: responseData.error,
           password: "",
         });
-      } else if (responseData.Token) {
+      } else if (responseData.token) {
         setData({ username: "", password: "", loading: false, error: false });
         localStorage.setItem("jwt", JSON.stringify(responseData));
         enqueueSnackbar('Login Completed Successfully..!', { variant: 'success' });

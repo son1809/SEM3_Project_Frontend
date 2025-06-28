@@ -151,3 +151,19 @@ export const getMyOrders = async () => {
     console.error("Error getting user orders:", error);
   }
 };
+
+// Update delivery status
+export const updateDeliveryStatus = async (id, status) => {
+  try {
+    const jwt = JSON.parse(localStorage.getItem("jwt"));
+    const res = await axios.put(
+      `${apiURL}/api/returnorreplacement/${id}/status`,
+      { status },
+      { headers: { Authorization: `Bearer ${jwt.token}` } }
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error updating delivery status:", error);
+    throw error;
+  }
+};

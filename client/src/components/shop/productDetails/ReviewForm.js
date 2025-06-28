@@ -41,11 +41,17 @@ const ReviewForm = (props) => {
     }
   };
 
-  const ratingUserList = data.singleProductDetail.pRatingsReviews.map(
-    (item) => {
-      return item.user ? item.user._id : "";
-    }
-  );
+  // Defensive: ensure pRatingsReviews is always an array
+  const pRatingsReviews = Array.isArray(data.singleProductDetail.pRatingsReviews)
+    ? data.singleProductDetail.pRatingsReviews
+    : [];
+
+  const ratingUserList = pRatingsReviews.map((item) => {
+    return item.user ? item.user._id : "";
+  });
+
+  // Defensive: check isAuthenticate() and user before accessing _id
+  const user = isAuthenticate() && isAuthenticate().user ? isAuthenticate().user : null;
 
   return (
     <Fragment>
@@ -53,7 +59,7 @@ const ReviewForm = (props) => {
         {fData.error ? Alert("red", fData.error) : ""}
         {fData.success ? Alert("green", fData.success) : ""}
       </div>
-      {ratingUserList.includes(isAuthenticate().user._id) ? (
+      {user && ratingUserList.includes(user._id) ? (
         <div className="mb-12 md:mx-16 lg:mx-20 xl:mx-24"></div>
       ) : (
         <div className="mb-12 md:mx-16 lg:mx-20 xl:mx-24 flex flex-col">

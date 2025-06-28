@@ -1,7 +1,6 @@
 import {
   DashboardData,
   postUploadImage,
-  getSliderImages,
   postDeleteImage,
 } from "./FetchApi";
 import { getAllOrder } from "../orders/FetchApi.js";
@@ -20,24 +19,12 @@ export const todayAllOrders = async (dispatch) => {
   }
 };
 
-export const sliderImages = async (dispatch) => {
-  try {
-    let responseData = await getSliderImages();
-    if (responseData && responseData.Images) {
-      dispatch({ type: "sliderImages", payload: responseData.Images });
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 export const deleteImage = async (id, dispatch) => {
   dispatch({ type: "imageUpload", payload: true });
   try {
     let responseData = await postDeleteImage(id);
     if (responseData && responseData.success) {
       setTimeout(function () {
-        sliderImages(dispatch);
         dispatch({ type: "imageUpload", payload: false });
       }, 1000);
     }
@@ -56,7 +43,6 @@ export const uploadImage = async (image, dispatch) => {
     if (responseData && responseData.success) {
       setTimeout(function () {
         dispatch({ type: "imageUpload", payload: false });
-        sliderImages(dispatch);
       }, 1000);
     }
   } catch (error) {

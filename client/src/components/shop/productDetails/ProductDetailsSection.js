@@ -5,7 +5,6 @@ import { LayoutContext } from "../layout";
 import Submenu from "./Submenu";
 import ProductDetailsSectionTwo from "./ProductDetailsSectionTwo";
 import { getSingleProduct } from "./FetchApi";
-import { cartListProduct } from "../partials/FetchApi";
 import { updateQuantity, slideImage, addToCart, cartList } from "./Mixins";
 import { totalCost } from "../partials/Mixins";
 
@@ -21,10 +20,22 @@ const ProductDetailsSection = (props) => {
   const [quantitiy, setQuantitiy] = useState(1);
   const [, setAlertq] = useState(false);
 
+  // Fetch product data only once on mount
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Cache product info when sProduct changes
+  useEffect(() => {
+    if (sProduct && sProduct.id) {
+      let cache = localStorage.getItem("productCache") ? JSON.parse(localStorage.getItem("productCache")) : [];
+      if (!cache.find((p) => p.id === sProduct.id)) {
+        cache.push({ id: sProduct.id, name: sProduct.name, imageUrl: sProduct.imageUrl });
+        localStorage.setItem("productCache", JSON.stringify(cache));
+      }
+    }
+  }, [sProduct]);
 
   const fetchData = async () => {
     dispatch({ type: "loading", payload: true });
@@ -40,24 +51,18 @@ const ProductDetailsSection = (props) => {
           layoutDispatch({ type: "inCart", payload: cartList() });
         }
         if (responseData.error) {
+          dispatch({ type: "loading", payload: false }); // Ensure loading is false on error
           console.log(responseData.error);
         }
       }, 500);
     } catch (error) {
+      dispatch({ type: "loading", payload: false }); // Ensure loading is false on error
       console.log(error);
     }
-    fetchCartProduct();
-  };
-
-  const fetchCartProduct = async () => {
-    try {
-      let responseData = await cartListProduct();
-      if (responseData && responseData.Products) {
-        layoutDispatch({ type: "cartProduct", payload: responseData.Products });
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    // fetchCartProduct(); // Remove this line, no backend cart fetch
+    // Instead, update cartProduct from localStorage
+    let cart = localStorage.getItem("cart") ? JSON.parse(localStorage.getItem("cart")) : [];
+    layoutDispatch({ type: "cartProduct", payload: cart });
   };
 
   if (data.loading) {
@@ -116,6 +121,7 @@ const ProductDetailsSection = (props) => {
                 <span className="text-xl tracking-wider text-yellow-700">
                   ${sProduct.price}.00
                 </span>
+                <span className="text-xs text-gray-500 ml-4">In stock: {sProduct.inventoryQuantity}</span>
               </div>
             </div>
             <div className="my-4 md:my-6 text-gray-600">
@@ -145,7 +151,7 @@ const ProductDetailsSection = (props) => {
                     <div className="flex items-center space-x-2">
                       <span
                         onClick={(e) =>
-                          updateQuantity(
+                          quantitiy > 1 && updateQuantity(
                             "decrease",
                             sProduct.inventoryQuantity,
                             quantitiy,
@@ -170,7 +176,7 @@ const ProductDetailsSection = (props) => {
                       <span className="font-semibold">{quantitiy}</span>
                       <span
                         onClick={(e) =>
-                          updateQuantity(
+                          quantitiy < sProduct.inventoryQuantity && updateQuantity(
                             "increase",
                             sProduct.inventoryQuantity,
                             quantitiy,
@@ -251,7 +257,9 @@ const ProductDetailsSection = (props) => {
                           setQuantitiy,
                           setAlertq,
                           fetchData,
-                          totalCost
+                          totalCost,
+                          sProduct.name,
+                          sProduct.imageUrl
                         )
                       }
                       style={{ background: "#303031" }}

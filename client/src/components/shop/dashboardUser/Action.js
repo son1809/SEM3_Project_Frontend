@@ -14,18 +14,23 @@ export const logout = () => {
 
 export const fetchData = async (dispatch) => {
   dispatch({ type: "loading", payload: true });
-  let userId = JSON.parse(localStorage.getItem("jwt"))
-    ? JSON.parse(localStorage.getItem("jwt")).user._id
-    : "";
+  let jwt = JSON.parse(localStorage.getItem("jwt"));
+  let userId = jwt && jwt.user ? jwt.user._id : null;
+  if (!userId) {
+    dispatch({ type: "userDetails", payload: null });
+    dispatch({ type: "loading", payload: false });
+    return;
+  }
   try {
     let responseData = await getUserById(userId);
     setTimeout(() => {
       if (responseData && responseData.User) {
         dispatch({ type: "userDetails", payload: responseData.User });
-        dispatch({ type: "loading", payload: false });
       }
+      dispatch({ type: "loading", payload: false });
     }, 500);
   } catch (error) {
+    dispatch({ type: "loading", payload: false });
     console.log(error);
   }
 };

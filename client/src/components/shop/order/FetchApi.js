@@ -1,6 +1,12 @@
 import axios from "axios";
 const apiURL = process.env.REACT_APP_API_URL;
 
+// Helper to get Authorization header
+const getAuthHeader = () => {
+  const jwt = JSON.parse(localStorage.getItem("jwt"));
+  return { Authorization: `Bearer ${jwt.token}` };
+};
+
 // CATEGORY ENDPOINTS
 
 // Get all categories

@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useContext, useState } from "react";
 import moment from "moment";
-import { getOrderByUser, cancelOrder } from "./FetchApi";
-import { requestReturnOrReplacement } from "./ReturnOrReplacementApi";
+import { getOrderByUser } from "./FetchApi";
+import { cancelOrder } from "../order/FetchApi";
 import Layout, { DashboardUserContext } from "./Layout";
 
 const TableHeader = () => {
@@ -130,11 +130,11 @@ const OrdersComponent = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    await requestReturnOrReplacement({
-      orderId: selectedOrder.id,
-      productId: form.productId,
-      requestType: form.requestType,
-    });
+    // await requestReturnOrReplacement({
+    //   orderId: selectedOrder.id,
+    //   productId: form.productId,
+    //   requestType: form.requestType,
+    // });
     setSubmitting(false);
     setShowModal(false);
   };

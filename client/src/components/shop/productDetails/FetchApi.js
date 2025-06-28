@@ -29,3 +29,15 @@ export const postDeleteReview = async (formData) => {
     console.log(error);
   }
 };
+
+export const getProductFeedbacks = async (productId) => {
+  try {
+    const res = await axios.get(
+      `${apiURL}/api/product/${productId}/feedbacks`
+    );
+    return res.data.feedbacks || [];
+  } catch (error) {
+    console.error("Error fetching product feedbacks:", error);
+    return [];
+  }
+};
