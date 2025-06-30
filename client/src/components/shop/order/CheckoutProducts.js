@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LayoutContext } from "../layout";
 import { subTotal, quantity } from "../partials/Mixins";
-import { startPayment } from "./FetchApi";
+import { createOrder, startPayment } from "./FetchApi";
 
 const CheckoutProducts = (props) => {
   const navigate = useNavigate();
