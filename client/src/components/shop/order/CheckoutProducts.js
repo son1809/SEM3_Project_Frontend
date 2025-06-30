@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LayoutContext } from "../layout";
 import { subTotal, quantity } from "../partials/Mixins";
+import { startPayment } from "./FetchApi";
 
 const CheckoutProducts = (props) => {
   const navigate = useNavigate();
@@ -16,11 +17,55 @@ const CheckoutProducts = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleProceed = () => {
-    // Placeholder for payment flow
-    alert(`Proceeding to payment with ${payment} and ${shipping} shipping.`);
-    // Here you would redirect to payment page or start payment flow
-  };
+  const handleProceed = async () => {
+  if (!data.cartProduct || data.cartProduct.length === 0) {
+    alert("No products in cart.");
+    return;
+  }
+  // Prepare order data
+  const items = data.cartProduct.map((item) => ({
+    productId: item.id,
+    quantity: item.quantitiy || item.quantity || 1,
+  }));
+
+  // You may want to get address from user input, here just a placeholder
+  const deliveryAddress = data.address || "Your shipping address here";
+
+  // Call backend to create order
+  let order;
+  try {
+    order = await createOrder({
+      items,
+      deliveryType: shipping,
+      deliveryAddress,
+    });
+  } catch (err) {
+    alert("Order creation failed.");
+    return;
+  }
+
+  if (!order || !order.id) {
+    alert("Order creation failed.");
+    return;
+  }
+
+  // Gọi API startPayment
+  try {
+    const jwt = JSON.parse(localStorage.getItem("jwt"));
+    const res = await startPayment({
+      orderId: order.id,
+      amount: order.totalAmount,
+      token: jwt?.Token || jwt?.token,
+    });
+    if (res && res.payUrl) {
+      window.location.href = res.payUrl; // Redirect to PayPal
+    } else {
+      alert("Failed to start PayPal payment.");
+    }
+  } catch (err) {
+    alert("Payment initiation failed.");
+  }
+};
 
   // Calculate total order cost
   const totalCost = (data.cartProduct && data.cartProduct.length > 0)
@@ -37,9 +82,12 @@ const CheckoutProducts = (props) => {
             <CheckoutProductsList products={data.cartProduct} />
             {/* Total Section */}
             <div className="mt-8 p-6 bg-gray-50 rounded-lg shadow flex flex-col items-end">
-              <div className="text-2xl font-bold text-gray-700">Total: <span className="text-yellow-600">${totalCost}.00</span></div>
+              <div className="text-2xl font-bold text-gray-700">
+                Total: <span className="text-yellow-600">${totalCost}.00</span>
+              </div>
             </div>
           </div>
+
           {/* Payment and shipping form */}
           <div className="md:w-1/3 w-full bg-gray-50 rounded-lg p-6 flex flex-col space-y-6 shadow">
             <div>
@@ -59,7 +107,7 @@ const CheckoutProducts = (props) => {
                   {
                     value: "Same Day",
                     title: "Same Day",
-                    description: "Delivery within the day • $10.00",
+                    description: "Same day delivery (city only) • $10.00",
                   },
                 ].map((method) => (
                   <label
@@ -90,8 +138,8 @@ const CheckoutProducts = (props) => {
             <div>
               <div className="text-lg font-semibold mb-2 text-gray-700">Payment Method</div>
               <div className="p-4 border border-gray-300 rounded-lg bg-white text-sm text-gray-600">
-                <div className="font-semibold text-md text-gray-800 mb-1">Paypal</div>
-                Thanh toán nhanh chóng, bảo mật qua cổng Paypal (hiện chỉ hỗ trợ phương thức này).
+                <div className="font-semibold text-md text-gray-800 mb-1">PayPal</div>
+                Fast and secure payment via PayPal (currently only this method is supported).
               </div>
             </div>
 

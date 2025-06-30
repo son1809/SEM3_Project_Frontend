@@ -35,7 +35,7 @@ const HomeComponent = () => {
             Welcome to Hayroo E-commerce!
           </h1>
           <p className="text-lg md:text-2xl mb-6 drop-shadow-lg">
-            Mua sắm dễ dàng, giao hàng tận nơi, ưu đãi mỗi ngày!
+            Easy shopping, home delivery, and daily deals!
           </p>
           <a
             href="#"
@@ -48,12 +48,12 @@ const HomeComponent = () => {
 
       {/* Giới thiệu */}
       <section className="py-12 bg-white text-center">
-        <h2 className="text-2xl font-bold mb-8 text-gray-800">Tại sao chọn chúng tôi?</h2>
+        <h2 className="text-2xl font-bold mb-8 text-gray-800">Shop with us</h2>
         <div className="flex flex-col md:flex-row justify-center items-center gap-8 px-4">
           {[
-            { icon: "🚚", title: "Giao hàng nhanh", desc: "Đảm bảo giao hàng đúng hẹn, an toàn đến tận tay bạn." },
-            { icon: "💰", title: "Giá tốt nhất", desc: "Luôn có nhiều ưu đãi và giá cạnh tranh nhất thị trường." },
-            { icon: "📞", title: "Hỗ trợ 24/7", desc: "Đội ngũ CSKH luôn sẵn sàng giải đáp mọi thắc mắc của bạn." },
+            { icon: "🚚", title: "Fast Delivery", desc: "Guaranteed on-time and safe delivery to your door." },
+            { icon: "💰", title: "Best Price", desc: "Always offering great deals and market-leading prices." },
+            { icon: "📞", title: "24/7 Support", desc: "Our support team is ready to assist you anytime." },
           ].map((item, idx) => (
             <div key={idx} className="bg-gray-50 p-6 rounded-xl shadow-md hover:shadow-xl hover:scale-105 transition duration-300 max-w-xs text-center">
               <div className="text-5xl mb-4">{item.icon}</div>
