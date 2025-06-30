@@ -4,6 +4,7 @@ import DashboardCard from "./DashboardCard";
 import { dashboardState, dashboardReducer } from "./DashboardContext";
 import TodaySell from "./TodaySell";
 import UserListPage from "./UserListPage";
+import DashboardAnalytics from "./DashboardAnalytics";
 
 export const DashboardContext = createContext();
 
@@ -11,6 +12,7 @@ const DashboardComponent = () => {
   return (
     <Fragment>
       <DashboardCard />
+      <DashboardAnalytics />
       <TodaySell />
     </Fragment>
   );
