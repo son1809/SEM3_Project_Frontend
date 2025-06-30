@@ -19,6 +19,7 @@ import PaypalReturn from "./shop/order/PaypalReturn"; // <-- Add this import
 import MyReturnOrReplacement from "./shop/dashboardUser/MyReturnOrReplacement";
 import AllReturnOrReplacement from "./admin/orders/AllReturnOrReplacement";
 import MyFeedbacks from "./shop/feedback/MyFeedbacks";
+import UserListPage from "./admin/dashboardAdmin/UserListPage";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -93,6 +94,14 @@ const AppRoutes = (props) => {
           element={
             <AdminProtectedRoute>
               <Orders />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard/customers"
+          element={
+            <AdminProtectedRoute>
+              <UserListPage />
             </AdminProtectedRoute>
           }
         />

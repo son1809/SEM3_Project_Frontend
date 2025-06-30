@@ -1,19 +1,13 @@
-import React, { Fragment, useContext, useEffect } from "react";
+import React, { Fragment, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import { DashboardContext } from "./";
-import { todayAllOrders } from "./Action";
 
 const apiURL = process.env.REACT_APP_API_URL;
 
 const SellTable = () => {
   const navigate = useNavigate();
-  const { data, dispatch } = useContext(DashboardContext);
-
-  useEffect(() => {
-    todayAllOrders(dispatch);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { data } = useContext(DashboardContext);
 
   const ordersList = () => {
     let newList = [];
