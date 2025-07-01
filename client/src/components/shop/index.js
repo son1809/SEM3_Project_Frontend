@@ -10,6 +10,10 @@ import PageNotFound from "./layout/PageNotFound";
 import ProductDetails from "./productDetails";
 import ProductByCategory from "./home/ProductByCategory";
 import CheckoutPage from "./order/CheckoutPage";
+export { default as Blog } from "./Blog";
+export { default as ContactUs } from "./ContactUs";
+
+
 
 export {
   Home,

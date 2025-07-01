@@ -1,4 +1,5 @@
 import React from "react";
+
 import {
   Home,
   WishList,
@@ -19,6 +20,11 @@ import PaypalReturn from "./shop/order/PaypalReturn"; // <-- Add this import
 import MyReturnOrReplacement from "./shop/dashboardUser/MyReturnOrReplacement";
 import AllReturnOrReplacement from "./admin/orders/AllReturnOrReplacement";
 import MyFeedbacks from "./shop/feedback/MyFeedbacks";
+import { Blog } from "./shop";
+import ContactUs from "./shop/ContactUs";
+
+
+
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -151,8 +157,13 @@ const AppRoutes = (props) => {
             </ProtectedRoute>
           }
         />
-        {/* 404 Page */}
-        <Route path="*" element={<PageNotFound />} />
+
+        <Route path="/blog" element={<Blog />} />
+        {/* Blog Page */}
+
+        <Route path="/contact-us" element={<ContactUs />} />
+        {/* Contact Us Page */}
+        
       </Routes>
     </Router>
   );
