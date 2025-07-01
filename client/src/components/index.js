@@ -24,8 +24,6 @@ import { Blog } from "./shop";
 import ContactUs from "./shop/ContactUs";
 
 
-
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 /* Routing All page will be here */
@@ -99,6 +97,14 @@ const AppRoutes = (props) => {
           element={
             <AdminProtectedRoute>
               <Orders />
+            </AdminProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard/customers"
+          element={
+            <AdminProtectedRoute>
+              <UserListPage />
             </AdminProtectedRoute>
           }
         />

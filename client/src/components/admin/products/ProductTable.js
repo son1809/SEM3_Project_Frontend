@@ -3,11 +3,25 @@ import { getAllProduct, deleteProduct } from "./FetchApi";
 import moment from "moment";
 import { ProductContext } from "./index";
 
+const COLUMN_CONFIG = [
+  { key: "name", label: "Product" },
+  { key: "description", label: "Description" },
+  { key: "imageUrl", label: "Image" },
+  { key: "status", label: "Status" },
+  { key: "inventoryQuantity", label: "Stock" },
+  { key: "categoryName", label: "Category" },
+  { key: "warrantyPeriod", label: "Warranty" },
+  { key: "createdAt", label: "Created at" },
+  { key: "updatedAt", label: "Updated at" },
+];
+
 const AllProduct = (props) => {
   const { data, dispatch } = useContext(ProductContext);
   const { products } = data;
 
   const [loading, setLoading] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -38,7 +52,6 @@ const AllProduct = (props) => {
     }
   };
 
-  /* This method call the editmodal & dispatch product context */
   const editProduct = (pId, product, type) => {
     if (type) {
       dispatch({
@@ -47,6 +60,48 @@ const AllProduct = (props) => {
       });
     }
   };
+
+  // Sorting logic
+  const handleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        if (prev.direction === "asc") return { key, direction: "desc" };
+        if (prev.direction === "desc") return { key: null, direction: null };
+        return { key, direction: "asc" };
+      }
+      return { key, direction: "asc" };
+    });
+  };
+
+  let filteredProducts = products || [];
+  if (search.trim()) {
+    const s = search.trim().toLowerCase();
+    filteredProducts = filteredProducts.filter((p) =>
+      [p.name, p.description, p.categoryName, p.status]
+        .filter(Boolean)
+        .some((v) => v.toLowerCase().includes(s))
+    );
+  }
+
+  if (sortConfig.key && sortConfig.direction) {
+    filteredProducts = [...filteredProducts].sort((a, b) => {
+      let aVal = a[sortConfig.key];
+      let bVal = b[sortConfig.key];
+      if (sortConfig.key === "createdAt" || sortConfig.key === "updatedAt") {
+        aVal = aVal ? new Date(aVal) : 0;
+        bVal = bVal ? new Date(bVal) : 0;
+      }
+      if (aVal === undefined || aVal === null) return 1;
+      if (bVal === undefined || bVal === null) return -1;
+      if (typeof aVal === "string" && typeof bVal === "string") {
+        aVal = aVal.toLowerCase();
+        bVal = bVal.toLowerCase();
+      }
+      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }
 
   if (loading) {
     return (
@@ -72,24 +127,36 @@ const AllProduct = (props) => {
   return (
     <Fragment>
       <div className="col-span-1 overflow-auto bg-white shadow-lg p-4">
+        <div className="mb-4 flex justify-between items-center">
+          <input
+            type="text"
+            className="border rounded px-3 py-2 w-full md:w-1/3"
+            placeholder="Search by name, description, category, status..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
         <table className="table-auto border w-full my-2">
           <thead>
             <tr>
-              <th className="px-4 py-2 border">Product</th>
-              <th className="px-4 py-2 border">Description</th>
-              <th className="px-4 py-2 border">Image</th>
-              <th className="px-4 py-2 border">Status</th>
-              <th className="px-4 py-2 border">Stock</th>
-              <th className="px-4 py-2 border">Category</th>
-              <th className="px-4 py-2 border">Warranty</th>
-              <th className="px-4 py-2 border">Created at</th>
-              <th className="px-4 py-2 border">Updated at</th>
+              {COLUMN_CONFIG.map((col) => (
+                <th
+                  key={col.key}
+                  className="px-4 py-2 border cursor-pointer select-none"
+                  onClick={() => handleSort(col.key)}
+                >
+                  {col.label}
+                  {sortConfig.key === col.key ? (
+                    sortConfig.direction === "asc" ? " ▲" : sortConfig.direction === "desc" ? " ▼" : ""
+                  ) : ""}
+                </th>
+              ))}
               <th className="px-4 py-2 border">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {products && products.length > 0 ? (
-              products.map((item, key) => {
+            {filteredProducts && filteredProducts.length > 0 ? (
+              filteredProducts.map((item, key) => {
                 return (
                   <ProductTable
                     product={item}
@@ -104,7 +171,7 @@ const AllProduct = (props) => {
             ) : (
               <tr>
                 <td
-                  colSpan="10"
+                  colSpan={COLUMN_CONFIG.length + 1}
                   className="text-xl text-center font-semibold py-8"
                 >
                   No product found
@@ -114,7 +181,7 @@ const AllProduct = (props) => {
           </tbody>
         </table>
         <div className="text-sm text-gray-600 mt-2">
-          Total {products && products.length} product found
+          Total {filteredProducts && filteredProducts.length} product found
         </div>
       </div>
     </Fragment>

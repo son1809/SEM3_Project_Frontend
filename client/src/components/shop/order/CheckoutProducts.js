@@ -2,6 +2,7 @@ import React, { Fragment, useEffect, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { LayoutContext } from "../layout";
 import { subTotal, quantity } from "../partials/Mixins";
+import { createOrder, startPayment } from "./FetchApi";
 
 const CheckoutProducts = (props) => {
   const navigate = useNavigate();
@@ -16,11 +17,55 @@ const CheckoutProducts = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleProceed = () => {
-    // Placeholder for payment flow
-    alert(`Proceeding to payment with ${payment} and ${shipping} shipping.`);
-    // Here you would redirect to payment page or start payment flow
-  };
+  const handleProceed = async () => {
+  if (!data.cartProduct || data.cartProduct.length === 0) {
+    alert("No products in cart.");
+    return;
+  }
+  // Prepare order data
+  const items = data.cartProduct.map((item) => ({
+    productId: item.id,
+    quantity: item.quantitiy || item.quantity || 1,
+  }));
+
+  // You may want to get address from user input, here just a placeholder
+  const deliveryAddress = data.address || "Your shipping address here";
+
+  // Call backend to create order
+  let order;
+  try {
+    order = await createOrder({
+      items,
+      deliveryType: shipping,
+      deliveryAddress,
+    });
+  } catch (err) {
+    alert("Order creation failed.");
+    return;
+  }
+
+  if (!order || !order.id) {
+    alert("Order creation failed.");
+    return;
+  }
+
+  // Gọi API startPayment
+  try {
+    const jwt = JSON.parse(localStorage.getItem("jwt"));
+    const res = await startPayment({
+      orderId: order.id,
+      amount: order.totalAmount,
+      token: jwt?.Token || jwt?.token,
+    });
+    if (res && res.payUrl) {
+      window.location.href = res.payUrl; // Redirect to PayPal
+    } else {
+      alert("Failed to start PayPal payment.");
+    }
+  } catch (err) {
+    alert("Payment initiation failed.");
+  }
+};
 
   // Calculate total order cost
   const totalCost = (data.cartProduct && data.cartProduct.length > 0)
@@ -37,34 +82,68 @@ const CheckoutProducts = (props) => {
             <CheckoutProductsList products={data.cartProduct} />
             {/* Total Section */}
             <div className="mt-8 p-6 bg-gray-50 rounded-lg shadow flex flex-col items-end">
-              <div className="text-2xl font-bold text-gray-700">Total: <span className="text-yellow-600">${totalCost}.00</span></div>
+              <div className="text-2xl font-bold text-gray-700">
+                Total: <span className="text-yellow-600">${totalCost}.00</span>
+              </div>
             </div>
           </div>
+
           {/* Payment and shipping form */}
           <div className="md:w-1/3 w-full bg-gray-50 rounded-lg p-6 flex flex-col space-y-6 shadow">
             <div>
-              <div className="text-lg font-semibold mb-2 text-gray-700">Shipping Method</div>
-              <select
-                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 text-lg"
-                value={shipping}
-                onChange={e => setShipping(e.target.value)}
-              >
-                <option value="Standard">Standard</option>
-                <option value="Express">Express</option>
-                <option value="Same Day">Same Day</option>
-              </select>
+              <div className="text-lg font-semibold mb-3 text-gray-700">Shipping Method</div>
+              <div className="space-y-4">
+                {[
+                  {
+                    value: "Standard",
+                    title: "Standard",
+                    description: "5-7 working days • Free",
+                  },
+                  {
+                    value: "Express",
+                    title: "Express",
+                    description: "1-2 working days • $5.00",
+                  },
+                  {
+                    value: "Same Day",
+                    title: "Same Day",
+                    description: "Same day delivery (city only) • $10.00",
+                  },
+                ].map((method) => (
+                  <label
+                    key={method.value}
+                    className={`block border rounded-lg p-4 cursor-pointer shadow-sm transition hover:shadow-md ${
+                      shipping === method.value ? "border-yellow-500 bg-yellow-50" : "border-gray-300"
+                    }`}
+                  >
+                    <div className="flex items-start">
+                      <input
+                        type="radio"
+                        name="shipping"
+                        value={method.value}
+                        checked={shipping === method.value}
+                        onChange={(e) => setShipping(e.target.value)}
+                        className="mt-1 h-5 w-5 text-yellow-500 focus:ring-yellow-500"
+                      />
+                      <div className="ml-4">
+                        <div className="text-md font-semibold text-gray-800">{method.title}</div>
+                        <div className="text-sm text-gray-600">{method.description}</div>
+                      </div>
+                    </div>
+                  </label>
+                ))}
+              </div>
             </div>
+
             <div>
               <div className="text-lg font-semibold mb-2 text-gray-700">Payment Method</div>
-              <select
-                className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 text-lg"
-                value={payment}
-                onChange={e => setPayment(e.target.value)}
-                disabled
-              >
-                <option value="Paypal">Paypal (only supported)</option>
-              </select>
+              <div className="p-4 border border-gray-300 rounded-lg bg-white text-sm text-gray-600">
+                <div className="font-semibold text-md text-gray-800 mb-1">PayPal</div>
+                Fast and secure payment via PayPal (currently only this method is supported).
+              </div>
             </div>
+
+            {/* Proceed Button */}
             <button
               onClick={handleProceed}
               className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded text-lg shadow transition duration-200"

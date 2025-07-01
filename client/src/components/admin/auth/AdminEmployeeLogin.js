@@ -22,14 +22,23 @@ const AdminEmployeeLogin = () => {
         { username: form.username, password: form.password },
         { headers: { "Content-Type": "application/json" } }
       );
-      if (res.data && res.data.token) {
-        localStorage.setItem("jwt", JSON.stringify({ token: res.data.token }));
-        navigate("/admin/dashboard");
+      if (res.data && res.data.token && res.data.role) {
+        const role = res.data.role.toLowerCase();
+        if (role === "admin" || role === "employee") {
+          localStorage.setItem("jwt", JSON.stringify({ token: res.data.token, role: res.data.role }));
+          navigate("/admin/dashboard");
+        } else {
+          setError("Access denied: Not an admin or employee");
+        }
       } else {
         setError("Login failed");
       }
     } catch (err) {
-      setError("Invalid credentials");
+      setError(
+        err.response && err.response.data && typeof err.response.data.message === "string"
+          ? err.response.data.message
+          : "Invalid credentials"
+      );
     }
   };
 
