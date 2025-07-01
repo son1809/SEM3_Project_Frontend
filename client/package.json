@@ -15,8 +15,8 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.23.0",
     "react-scripts": "^5.0.1",
-    "swiper": "^11.2.10",
-    "recharts": "^3.0.2"
+    "recharts": "^3.0.2",
+    "swiper": "^11.2.10"
   },
   "scripts": {
     "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",

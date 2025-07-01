@@ -13,33 +13,49 @@ const getAuthHeader = () => {
   return { Authorization: `Bearer ${token}` };
 };
 
+const PERIODS = [
+  { label: "Last 7 days", value: "7d" },
+  { label: "Last 2 weeks", value: "14d" },
+  { label: "Last 30 days", value: "30d" },
+  { label: "Last 3 months", value: "90d" },
+];
+
 const DashboardAnalytics = () => {
   const [summary, setSummary] = useState(null);
   const [trend, setTrend] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
-  const [lowStock, setLowStock] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState("30d");
 
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      axios.get(`${apiURL}/api/dashboard/summary`, { headers: getAuthHeader() }),
-      axios.get(`${apiURL}/api/dashboard/revenue-trend?range=30d`, { headers: getAuthHeader() }),
-      axios.get(`${apiURL}/api/dashboard/top-products?limit=5`, { headers: getAuthHeader() }),
-      axios.get(`${apiURL}/api/dashboard/low-stock?threshold=5`, { headers: getAuthHeader() }),
+      axios.get(`${apiURL}/api/dashboard/summary?range=${period}`, { headers: getAuthHeader() }),
+      axios.get(`${apiURL}/api/dashboard/revenue-trend?range=${period}`, { headers: getAuthHeader() }),
+      axios.get(`${apiURL}/api/dashboard/top-products?limit=5&range=${period}`, { headers: getAuthHeader() }),
     ])
-      .then(([summaryRes, trendRes, topRes, lowRes]) => {
+      .then(([summaryRes, trendRes, topRes]) => {
         setSummary(summaryRes.data);
         setTrend(trendRes.data);
         setTopProducts(topRes.data);
-        setLowStock(lowRes.data);
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [period]);
 
   return (
     <div className="bg-white rounded shadow p-6 my-8">
       <h2 className="text-2xl font-bold mb-6 text-center">Dashboard Analytics</h2>
+      <div className="flex justify-end mb-4">
+        <select
+          className="border rounded px-3 py-1"
+          value={period}
+          onChange={e => setPeriod(e.target.value)}
+        >
+          {PERIODS.map(p => (
+            <option key={p.value} value={p.value}>{p.label}</option>
+          ))}
+        </select>
+      </div>
       {loading ? (
         <div className="text-center py-8">Loading analytics...</div>
       ) : (
@@ -62,7 +78,7 @@ const DashboardAnalytics = () => {
 
           {/* Revenue Trend */}
           <div className="mb-10">
-            <div className="text-lg font-semibold mb-2">Revenue Trend (Last 30 Days)</div>
+            <div className="text-lg font-semibold mb-2">Revenue Trend ({PERIODS.find(p => p.value === period)?.label})</div>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={trend}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -86,31 +102,6 @@ const DashboardAnalytics = () => {
                 <Bar dataKey="unitsSold" fill="#82ca9d" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-
-          {/* Low Stock */}
-          <div>
-            <div className="text-lg font-semibold mb-2">Low Stock Products (≤ 5 left)</div>
-            {lowStock.length === 0 ? (
-              <div className="text-gray-500">No low stock products 🎉</div>
-            ) : (
-              <table className="w-full border mt-2">
-                <thead>
-                  <tr>
-                    <th className="border px-2 py-1">Product</th>
-                    <th className="border px-2 py-1">Stock Left</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lowStock.map((p) => (
-                    <tr key={p.productName}>
-                      <td className="border px-2 py-1">{p.productName}</td>
-                      <td className="border px-2 py-1 text-red-600 font-bold">{p.stock}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
           </div>
         </>
       )}
