@@ -10,11 +10,11 @@ const Layout = ({ children }) => {
   return (
     <LayoutContext.Provider value={{ data, dispatch }}>
       <Fragment>
-        <div className="flex-grow">
-          <Navber />
-          <LoginSignup />
-          <CartModal />
-          {/* All Children pass from here */}
+        <Navber />
+        <LoginSignup />
+        <CartModal />
+        {/* Main content wrapper with padding to avoid navbar clipping */}
+        <div className="flex-grow pt-24 md:pt-28 min-h-screen bg-white">
           {children}
         </div>
         <Footer />

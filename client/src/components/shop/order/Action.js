@@ -56,6 +56,7 @@ export const pay = async (
       } else {
         setState({ ...state, error: "Payment initiation failed" });
         dispatch({ type: "loading", payload: false });
+        if (navigate) navigate("/payment-failed");
       }
     } else if (order && order.error) {
       setState({ ...state, error: order.error });

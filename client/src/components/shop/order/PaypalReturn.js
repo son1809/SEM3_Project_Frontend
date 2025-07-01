@@ -14,13 +14,15 @@ const PaypalReturn = () => {
       confirmPaypalPayment(token).then((result) => {
         if (result && result.success) {
           setStatus("Payment successful! Thank you for your order.");
-          setTimeout(() => navigate("/user/orders"), 2000);
+          setTimeout(() => navigate("/payment-success"), 2000);
         } else {
           setStatus("Payment failed or cancelled.");
+          setTimeout(() => navigate("/payment-failed"), 2000);
         }
       });
     } else {
       setStatus("No payment token found.");
+      setTimeout(() => navigate("/payment-failed"), 2000);
     }
   }, [location, navigate]);
 

@@ -41,24 +41,24 @@ const ContactUs = () => {
             Contact Us
           </h1>
           <p className="mb-8 text-gray-700 text-center">
-            Nếu bạn có thắc mắc hay góp ý, vui lòng điền thông tin bên dưới. Chúng tôi sẽ phản hồi bạn trong thời gian sớm nhất.
+            If you have any questions or feedback, please fill out the form below. We will get back to you as soon as possible.
           </p>
 
           {status === "success" && (
             <div className="mb-6 p-4 bg-green-100 text-green-700 rounded">
-              Cảm ơn bạn đã liên hệ với chúng tôi! Chúng tôi sẽ phản hồi sớm.
+              Thank you for contacting us! We will respond soon.
             </div>
           )}
           {status === "error" && (
             <div className="mb-6 p-4 bg-red-100 text-red-700 rounded">
-              Vui lòng điền đầy đủ thông tin trước khi gửi.
+              Please fill in all fields before submitting.
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="name" className="block mb-1 font-medium">
-                Họ và tên
+                Full Name
               </label>
               <input
                 type="text"
@@ -67,7 +67,7 @@ const ContactUs = () => {
                 value={formData.name}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nhập họ và tên"
+                placeholder="Enter your full name"
               />
             </div>
 
@@ -82,13 +82,13 @@ const ContactUs = () => {
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nhập email"
+                placeholder="Enter your email"
               />
             </div>
 
             <div>
               <label htmlFor="message" className="block mb-1 font-medium">
-                Nội dung
+                Message
               </label>
               <textarea
                 name="message"
@@ -97,7 +97,7 @@ const ContactUs = () => {
                 onChange={handleChange}
                 rows={5}
                 className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Nhập nội dung tin nhắn"
+                placeholder="Enter your message"
               ></textarea>
             </div>
 
@@ -105,7 +105,7 @@ const ContactUs = () => {
               type="submit"
               className="bg-blue-600 text-white font-semibold px-6 py-3 rounded hover:bg-blue-700 transition"
             >
-              Gửi liên hệ
+              Submit
             </button>
           </form>
         </div>

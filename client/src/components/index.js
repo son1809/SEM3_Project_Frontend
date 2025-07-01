@@ -10,19 +10,22 @@ import {
   ProductDetails,
   ProductByCategory,
   CheckoutPage,
+  Blog,
 } from "./shop";
+import AllProductsPage from "./shop/AllProductsPage";
 import { DashboardAdmin, Categories, Products, Orders } from "./admin";
 import AdminEmployeeLogin from "./admin/auth/AdminEmployeeLogin";
 import AdminEmployeeRegister from "./admin/auth/AdminEmployeeRegister";
 import ChangeEmployeePassword from "./admin/auth/ChangeEmployeePassword";
 import { UserProfile, UserOrders, SettingUser } from "./shop/dashboardUser";
-import PaypalReturn from "./shop/order/PaypalReturn"; // <-- Add this import
+import PaypalReturn from "./shop/order/PaypalReturn";
+import PaymentSuccess from "./shop/order/PaymentSuccess";
+import PaymentFailed from "./shop/order/PaymentFailed";
 import MyReturnOrReplacement from "./shop/dashboardUser/MyReturnOrReplacement";
 import AllReturnOrReplacement from "./admin/orders/AllReturnOrReplacement";
 import MyFeedbacks from "./shop/feedback/MyFeedbacks";
-import { Blog } from "./shop";
 import ContactUs from "./shop/ContactUs";
-
+import UserListPage from "./admin/dashboardAdmin/UserListPage";
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -33,6 +36,7 @@ const AppRoutes = (props) => {
       <Routes>
         {/* Shop & Public Routes */}
         <Route path="/" element={<Home />} />
+        <Route path="/products" element={<AllProductsPage />} />
         <Route path="/wish-list" element={<WishList />} />
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/products/category/:catId" element={<ProductByCategory />} />
@@ -44,7 +48,11 @@ const AppRoutes = (props) => {
             </CartProtectedRoute>
           }
         />
-        <Route path="/paypal-return" element={<PaypalReturn />} /> {/* <-- Add this route */}
+        <Route path="/paypal-return" element={<PaypalReturn />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failed" element={<PaymentFailed />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failed" element={<PaymentFailed />} />
         {/* Shop & Public Routes End */}
 
         {/* Admin Auth Routes */}
