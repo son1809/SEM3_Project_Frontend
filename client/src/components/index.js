@@ -9,8 +9,13 @@ import {
   ProductDetails,
   ProductByCategory,
   CheckoutPage,
+  Blog,
+  ContactUs,
 } from "./shop";
 import { DashboardAdmin, Categories, Products, Orders, AdminEmployeeLogin, AdminEmployeeRegister, ChangeEmployeePassword, UserList } from "./admin";
+import AllProductsPage from "./shop/AllProductsPage";
+import PaymentSuccess from "./shop/order/PaymentSuccess";
+import PaymentFailed from "./shop/order/PaymentFailed";
 import { UserProfile, UserOrders, SettingUser } from "./shop/dashboardUser";
 import FeedbackAndReturnTabs from "./shop/dashboardUser/FeedbackAndReturnTabs";
 import PaypalReturn from "./shop/order/PaypalReturn"; // <-- Add this import
@@ -25,8 +30,14 @@ const AppRoutes = (props) => {
         {/* Shop & Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/wish-list" element={<WishList />} />
+        <Route path="/products" element={<AllProductsPage />} />
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/products/category/:catId" element={<ProductByCategory />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/contact-us" element={<ContactUs />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failed" element={<PaymentFailed />} />
+import PaymentFailed from "./shop/order/PaymentFailed";
         <Route
           path="/checkout"
           element={
