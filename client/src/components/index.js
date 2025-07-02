@@ -5,15 +5,16 @@ import {
   ProtectedRoute,
   AdminProtectedRoute,
   CartProtectedRoute,
-  PageNotFound,
   ProductDetails,
   ProductByCategory,
   CheckoutPage,
 } from "./shop";
 import { DashboardAdmin, Categories, Products, Orders, AdminEmployeeLogin, AdminEmployeeRegister, ChangeEmployeePassword, UserList } from "./admin";
 import { UserProfile, UserOrders, SettingUser } from "./shop/dashboardUser";
-import FeedbackAndReturnTabs from "./shop/dashboardUser/FeedbackAndReturnTabs";
-import PaypalReturn from "./shop/order/PaypalReturn"; // <-- Add this import
+import PaypalReturn from "./shop/order/PaypalReturn"; 
+import Blog from "./shop/Blog";
+import ContactUs from "./shop/ContactUs";
+
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -122,8 +123,10 @@ const AppRoutes = (props) => {
         />
         {/* User Dashboard End */}
 
-        {/* 404 Page */}
-        <Route path="*" element={<PageNotFound />} />
+        <Route path="/blog" element={<Blog />} />
+
+        <Route path="/contact" element={<ContactUs />} />
+
       </Routes>
     </Router>
   );
