@@ -5,25 +5,25 @@ import { updatePersonalInformationAction } from "./Action";
 
 const ProfileComponent = () => {
   const { data, dispatch } = useContext(DashboardUserContext);
-  const userDetails = data.userDetails !== null ? data.userDetails : "";
+
+  const userDetails = data.userDetails || {};
 
   const [fData, setFdata] = useState({
-    id: "",
     name: "",
     email: "",
     phone: "",
+    address: "",
     success: false,
   });
 
   useEffect(() => {
-    setFdata({
-      ...fData,
-      id: userDetails._id,
-      name: userDetails.name,
-      email: userDetails.email,
-      phone: userDetails.phoneNumber,
-    });
-
+    setFdata((prev) => ({
+      ...prev,
+      name: userDetails.name || "",
+      email: userDetails.email || "",
+      phone: userDetails.phoneNumber || "",
+      address: userDetails.address || "",
+    }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userDetails]);
 
@@ -117,7 +117,7 @@ const ProfileComponent = () => {
 const UserProfile = (props) => {
   return (
     <Fragment>
-      <Layout children={<ProfileComponent />} />
+      <Layout dashboardSectionDefault="profile" children={<ProfileComponent />} />
     </Fragment>
   );
 };

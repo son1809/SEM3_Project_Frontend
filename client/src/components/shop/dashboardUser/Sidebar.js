@@ -39,65 +39,84 @@ const Sidebar = (props) => {
         </div>
         <div className="shadow hidden md:block w-full flex flex-col">
           <div
-            onClick={(e) => navigate("/user/orders")}
-            className={`${
-              location.pathname === "/user/orders"
-                ? "border-r-4 border-yellow-700 bg-gray-200"
-                : ""
-            }  px-4 py-4 hover:bg-gray-200 cursor-pointer`}
+            onClick={() => {
+              if (props.setDashboardSection) props.setDashboardSection("orders");
+              navigate("/user/orders");
+            }}
+            className={`${props.dashboardSection === "orders" && location.pathname === "/user/orders" ? "border-r-4 border-yellow-700 bg-gray-200" : ""} px-4 py-4 hover:bg-gray-200 cursor-pointer`}
+            style={{
+              background: (props.dashboardSection === "orders" && location.pathname === "/user/orders") ? "#fefcbf" : undefined
+            }}
           >
             My Orders
           </div>
           <hr />
           <div
-            onClick={(e) => navigate("/user/profile")}
-            className={`${
-              location.pathname === "/user/profile"
-                ? "border-r-4 border-yellow-700 bg-gray-200"
-                : ""
-            }  px-4 py-4 hover:bg-gray-200 cursor-pointer`}
+            onClick={() => {
+              if (props.setDashboardSection) {
+                props.setDashboardSection("profile");
+                if (location.pathname !== "/user/profile") {
+                  navigate("/user/profile");
+                }
+              }
+            }}
+            className={`${props.dashboardSection === "profile" && location.pathname === "/user/profile" ? "border-r-4 border-yellow-700 bg-gray-200" : ""} px-4 py-4 hover:bg-gray-200 cursor-pointer`}
+            style={{
+              background: (props.dashboardSection === "profile" && location.pathname === "/user/profile") ? "#fefcbf" : undefined
+            }}
           >
             My Accounts
           </div>
           <hr />
           <div
-            onClick={(e) => navigate("/wish-list")}
-            className={` px-4 py-4 hover:bg-gray-200 cursor-pointer`}
-          >
-            My Wishlist
-          </div>
-          <hr />
-          <div
-            onClick={(e) => navigate("/user/setting")}
-            className={`${
-              location.pathname === "/user/setting"
-                ? "border-r-4 border-yellow-700 bg-gray-200"
-                : ""
-            }  px-4 py-4 hover:bg-gray-200 cursor-pointer`}
+            onClick={() => {
+              if (props.setDashboardSection) {
+                props.setDashboardSection("setting");
+                if (location.pathname !== "/user/setting") {
+                  navigate("/user/setting");
+                }
+              }
+            }}
+            className={`${props.dashboardSection === "setting" && location.pathname === "/user/setting" ? "border-r-4 border-yellow-700 bg-gray-200" : ""} px-4 py-4 hover:bg-gray-200 cursor-pointer`}
+            style={{
+              background: (props.dashboardSection === "setting" && location.pathname === "/user/setting") ? "#fefcbf" : undefined
+            }}
           >
             Setting
           </div>
           <hr />
           <div
-            onClick={(e) => navigate("/user/feedbacks")}
-            className={`${
-              location.pathname === "/user/feedbacks"
-                ? "border-r-4 border-yellow-700 bg-gray-200"
-                : ""
-            }  px-4 py-4 hover:bg-gray-200 cursor-pointer`}
+            onClick={() => {
+              if (props.setDashboardSection) {
+                props.setDashboardSection("feedbacks");
+                if (location.pathname !== "/user/feedbacks") {
+                  navigate("/user/feedbacks");
+                }
+              }
+            }}
+            className={`${props.dashboardSection === "feedbacks" && location.pathname === "/user/feedbacks" ? "border-r-4 border-yellow-700 bg-gray-200" : ""} px-4 py-4 hover:bg-gray-200 cursor-pointer`}
+            style={{
+              background: (props.dashboardSection === "feedbacks" && location.pathname === "/user/feedbacks") ? "#fefcbf" : undefined
+            }}
           >
             My Feedbacks
           </div>
           <hr />
           <div
-            onClick={(e) => navigate("/user/returns")}
-            className={`${
-              location.pathname === "/user/returns"
-                ? "border-r-4 border-yellow-700 bg-gray-200"
-                : ""
-            }  px-4 py-4 hover:bg-gray-200 cursor-pointer`}
+            onClick={() => {
+              if (props.setDashboardSection) {
+                props.setDashboardSection("returns");
+                if (location.pathname !== "/user/returns") {
+                  navigate("/user/returns");
+                }
+              }
+            }}
+            className={`${props.dashboardSection === "returns" && location.pathname === "/user/returns" ? "border-r-4 border-yellow-700 bg-gray-200" : ""} px-4 py-4 hover:bg-gray-200 cursor-pointer`}
+            style={{
+              background: (props.dashboardSection === "returns" && location.pathname === "/user/returns") ? "#fefcbf" : undefined
+            }}
           >
-            My Returns
+            My Returns / Replacements
           </div>
           <hr />
           <div

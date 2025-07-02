@@ -1,5 +1,4 @@
 import React from "react";
-
 import {
   Home,
   WishList,
@@ -10,22 +9,11 @@ import {
   ProductDetails,
   ProductByCategory,
   CheckoutPage,
-  Blog,
 } from "./shop";
-import AllProductsPage from "./shop/AllProductsPage";
-import { DashboardAdmin, Categories, Products, Orders } from "./admin";
-import AdminEmployeeLogin from "./admin/auth/AdminEmployeeLogin";
-import AdminEmployeeRegister from "./admin/auth/AdminEmployeeRegister";
-import ChangeEmployeePassword from "./admin/auth/ChangeEmployeePassword";
+import { DashboardAdmin, Categories, Products, Orders, AdminEmployeeLogin, AdminEmployeeRegister, ChangeEmployeePassword, UserList } from "./admin";
 import { UserProfile, UserOrders, SettingUser } from "./shop/dashboardUser";
-import PaypalReturn from "./shop/order/PaypalReturn";
-import PaymentSuccess from "./shop/order/PaymentSuccess";
-import PaymentFailed from "./shop/order/PaymentFailed";
-import MyReturnOrReplacement from "./shop/dashboardUser/MyReturnOrReplacement";
-import AllReturnOrReplacement from "./admin/orders/AllReturnOrReplacement";
-import MyFeedbacks from "./shop/feedback/MyFeedbacks";
-import ContactUs from "./shop/ContactUs";
-import UserListPage from "./admin/dashboardAdmin/UserListPage";
+import FeedbackAndReturnTabs from "./shop/dashboardUser/FeedbackAndReturnTabs";
+import PaypalReturn from "./shop/order/PaypalReturn"; // <-- Add this import
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -36,7 +24,6 @@ const AppRoutes = (props) => {
       <Routes>
         {/* Shop & Public Routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/products" element={<AllProductsPage />} />
         <Route path="/wish-list" element={<WishList />} />
         <Route path="/products/:id" element={<ProductDetails />} />
         <Route path="/products/category/:catId" element={<ProductByCategory />} />
@@ -48,32 +35,8 @@ const AppRoutes = (props) => {
             </CartProtectedRoute>
           }
         />
-        <Route path="/paypal-return" element={<PaypalReturn />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/payment-failed" element={<PaymentFailed />} />
-        <Route path="/payment-success" element={<PaymentSuccess />} />
-        <Route path="/payment-failed" element={<PaymentFailed />} />
+        <Route path="/paypal-return" element={<PaypalReturn />} /> {/* <-- Add this route */}
         {/* Shop & Public Routes End */}
-
-        {/* Admin Auth Routes */}
-        <Route path="/admin/login" element={<AdminEmployeeLogin />} />
-        <Route
-          path="/admin/register"
-          element={
-            <AdminProtectedRoute>
-              <AdminEmployeeRegister />
-            </AdminProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/change-password"
-          element={
-            <AdminProtectedRoute>
-              <ChangeEmployeePassword />
-            </AdminProtectedRoute>
-          }
-        />
-        {/* Admin Auth Routes End */}
 
         {/* Admin Routes */}
         <Route
@@ -108,14 +71,12 @@ const AppRoutes = (props) => {
             </AdminProtectedRoute>
           }
         />
-        <Route
-          path="/admin/dashboard/customers"
-          element={
-            <AdminProtectedRoute>
-              <UserListPage />
-            </AdminProtectedRoute>
-          }
-        />
+
+        {/* Admin Auth & User Management Routes */}
+        <Route path="/admin/login" element={<AdminEmployeeLogin />} />
+        <Route path="/admin/register" element={<AdminProtectedRoute><AdminEmployeeRegister /></AdminProtectedRoute>} />
+        <Route path="/admin/change-employee-password" element={<AdminProtectedRoute><ChangeEmployeePassword /></AdminProtectedRoute>} />
+        <Route path="/admin/users" element={<AdminProtectedRoute><UserList /></AdminProtectedRoute>} />
         {/* Admin Routes End */}
 
         {/* User Dashboard */}
@@ -143,41 +104,26 @@ const AppRoutes = (props) => {
             </ProtectedRoute>
           }
         />
-        {/* User Dashboard End */}
-
-        {/* User Return/Replacement */}
-        <Route
-          path="/user/returns"
-          element={
-            <ProtectedRoute>
-              <MyReturnOrReplacement />
-            </ProtectedRoute>
-          }
-        />
-        {/* Admin Return/Replacement */}
-        <Route
-          path="/admin/returns"
-          element={
-            <AdminProtectedRoute>
-              <AllReturnOrReplacement />
-            </AdminProtectedRoute>
-          }
-        />
         <Route
           path="/user/feedbacks"
           element={
             <ProtectedRoute>
-              <MyFeedbacks />
+              <UserOrders dashboardSectionDefault="feedbacks" />
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/user/returns"
+          element={
+            <ProtectedRoute>
+              <UserOrders dashboardSectionDefault="returns" />
+            </ProtectedRoute>
+          }
+        />
+        {/* User Dashboard End */}
 
-        <Route path="/blog" element={<Blog />} />
-        {/* Blog Page */}
-
-        <Route path="/contact-us" element={<ContactUs />} />
-        {/* Contact Us Page */}
-        
+        {/* 404 Page */}
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </Router>
   );

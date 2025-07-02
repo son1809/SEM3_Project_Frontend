@@ -4,19 +4,39 @@ import { getOrderByUser } from "./FetchApi";
 import { cancelOrder } from "../order/FetchApi";
 import Layout, { DashboardUserContext } from "./Layout";
 
-const TableHeader = () => {
+const sortIcons = {
+  none: <span className="ml-1 text-gray-400">⇅</span>,
+  asc: <span className="ml-1 text-gray-700">↑</span>,
+  desc: <span className="ml-1 text-gray-700">↓</span>,
+};
+
+const TableHeader = ({ sortConfig, onSort }) => {
+  const columns = [
+    { key: "id", label: "Order ID" },
+    { key: "orderDate", label: "Order Date" },
+    { key: "deliveryDate", label: "Delivery Date" },
+    { key: "deliveryType", label: "Delivery Type" },
+    { key: "dispatchStatus", label: "Status" },
+    { key: "totalAmount", label: "Total" },
+    { key: "items", label: "Items" },
+    { key: "actions", label: "Actions", sortable: false },
+  ];
   return (
     <Fragment>
       <thead>
         <tr>
-          <th className="px-4 py-2 border">Order ID</th>
-          <th className="px-4 py-2 border">Order Date</th>
-          <th className="px-4 py-2 border">Delivery Date</th>
-          <th className="px-4 py-2 border">Delivery Type</th>
-          <th className="px-4 py-2 border">Status</th>
-          <th className="px-4 py-2 border">Total</th>
-          <th className="px-4 py-2 border">Items</th>
-          <th className="px-4 py-2 border">Actions</th>
+          {columns.map((col) => (
+            <th
+              key={col.key}
+              className="px-4 py-2 border cursor-pointer select-none"
+              onClick={() => col.sortable === false ? undefined : onSort(col.key)}
+            >
+              <span className="flex items-center justify-center">
+                {col.label}
+                {col.sortable === false ? null : sortIcons[sortConfig.key === col.key ? sortConfig.direction : "none"]}
+              </span>
+            </th>
+          ))}
         </tr>
       </thead>
     </Fragment>
@@ -89,6 +109,8 @@ const OrdersComponent = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [form, setForm] = useState({ productId: "", requestType: "RETURN" });
   const [submitting, setSubmitting] = useState(false);
+  // Sorting state
+  const [sortConfig, setSortConfig] = useState({ key: "orderDate", direction: "desc" });
 
   const fetchOrders = async () => {
     dispatch({ type: "loading", payload: true });
@@ -105,6 +127,43 @@ const OrdersComponent = () => {
     fetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Sorting logic
+  const getSortedOrders = () => {
+    if (!orders || !Array.isArray(orders)) return [];
+    if (!sortConfig || !sortConfig.key || sortConfig.direction === "none") return [...orders];
+    const sorted = [...orders].sort((a, b) => {
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+      // Special handling for items (length), totalAmount (number), dates
+      if (sortConfig.key === "items") {
+        aValue = a.items?.length || 0;
+        bValue = b.items?.length || 0;
+      } else if (sortConfig.key === "totalAmount") {
+        aValue = Number(aValue);
+        bValue = Number(bValue);
+      } else if (sortConfig.key === "orderDate" || sortConfig.key === "deliveryDate") {
+        aValue = aValue ? new Date(aValue).getTime() : 0;
+        bValue = bValue ? new Date(bValue).getTime() : 0;
+      } else if (typeof aValue === "string" && typeof bValue === "string") {
+        aValue = aValue.toLowerCase();
+        bValue = bValue.toLowerCase();
+      }
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  };
+
+  const handleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key !== key) return { key, direction: "asc" };
+      if (prev.direction === "asc") return { key, direction: "desc" };
+      if (prev.direction === "desc") return { key: null, direction: "none" };
+      return { key, direction: "asc" };
+    });
+  };
 
   const handleCancel = async (orderId) => {
     dispatch({ type: "loading", payload: true });
@@ -159,6 +218,7 @@ const OrdersComponent = () => {
       </div>
     );
   }
+  const sortedOrders = getSortedOrders();
   return (
     <Fragment>
       <div className="flex flex-col w-full my-4 md:my-0 md:w-9/12 md:px-8">
@@ -169,10 +229,10 @@ const OrdersComponent = () => {
           <hr />
           <div className="overflow-auto bg-white shadow-lg p-4">
             <table className="table-auto border w-full my-2">
-              <TableHeader />
+              <TableHeader sortConfig={sortConfig} onSort={handleSort} />
               <tbody>
-                {orders && orders.length > 0 ? (
-                  orders.map((item, i) => {
+                {sortedOrders && sortedOrders.length > 0 ? (
+                  sortedOrders.map((item, i) => {
                     return <TableBody key={i} order={item} onCancel={handleCancel} onReturnOrReplacement={handleReturnOrReplacement} />;
                   })
                 ) : (
@@ -188,7 +248,7 @@ const OrdersComponent = () => {
               </tbody>
             </table>
             <div className="text-sm text-gray-600 mt-2">
-              Total {orders && orders.length} order found
+              Total {sortedOrders && sortedOrders.length} order found
             </div>
           </div>
         </div>
@@ -231,9 +291,10 @@ const OrdersComponent = () => {
 };
 
 const UserOrders = (props) => {
+  // Allow dashboardSectionDefault prop to control which section is shown on mount
   return (
     <Fragment>
-      <Layout children={<OrdersComponent />} />
+      <Layout dashboardSectionDefault={props.dashboardSectionDefault} children={<OrdersComponent />} />
     </Fragment>
   );
 };

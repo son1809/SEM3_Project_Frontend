@@ -5,16 +5,29 @@ import {
   dashboardUserState,
   dashboardUserReducer,
 } from "./DashboardUserContext";
+
+import MyFeedbacks from "../feedback/MyFeedbacks";
+import MyReturnOrReplacement from "./MyReturnOrReplacement";
 import { fetchData } from "./Action";
 
 export const DashboardUserContext = createContext();
 
-const Layout = ({ children }) => {
+const Layout = ({ children, dashboardSectionDefault }) => {
   const [data, dispatch] = useReducer(dashboardUserReducer, dashboardUserState);
+  const [dashboardSection, setDashboardSection] = React.useState(dashboardSectionDefault || "orders");
 
   useEffect(() => {
     fetchData(dispatch);
   }, []);
+
+  let dashboardContent = null;
+  if (dashboardSection === "feedbacks") {
+    dashboardContent = <MyFeedbacks />;
+  } else if (dashboardSection === "returns") {
+    dashboardContent = <MyReturnOrReplacement />;
+  } else {
+    dashboardContent = children;
+  }
 
   return (
     <Fragment>
@@ -23,9 +36,9 @@ const Layout = ({ children }) => {
           <Navber />
           <CartModal />
           <div className="mx-4 mt-24 md:mx-12 md:mt-32 lg:mt-24 flex flex-col md:flex-row">
-            <Sidebar />
+            <Sidebar dashboardSection={dashboardSection} setDashboardSection={setDashboardSection} />
             {/* All Children pass from here */}
-            {children}
+            {dashboardContent}
           </div>
         </div>
         <Footer />

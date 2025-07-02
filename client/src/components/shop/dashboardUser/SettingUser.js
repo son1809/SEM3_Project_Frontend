@@ -174,7 +174,7 @@ const SettingComponent = () => {
 const SettingUser = (props) => {
   return (
     <Fragment>
-      <Layout children={<SettingComponent />} />
+      <Layout dashboardSectionDefault="setting" children={<SettingComponent />} />
     </Fragment>
   );
 };

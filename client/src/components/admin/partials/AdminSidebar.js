@@ -48,7 +48,7 @@ const AdminSidebar = (props) => {
     },
     {
       path: "/admin/dashboard/products",
-      label: "Product",
+      label: "Products",
       icon: (
         <svg
           className="w-6 h-6 text-gray-600 hover:text-gray-800"
@@ -68,7 +68,7 @@ const AdminSidebar = (props) => {
     },
     {
       path: "/admin/dashboard/orders",
-      label: "Order",
+      label: "Orders",
       icon: (
         <svg
           className="w-6 h-6 text-gray-600 hover:text-gray-800"

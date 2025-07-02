@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect } from "react";
+import React, { Fragment, useContext, useEffect, useState } from "react";
 import { getAllCategory, deleteCategory } from "./FetchApi";
 import { CategoryContext } from "./index";
 import moment from "moment";
@@ -8,6 +8,7 @@ const apiURL = process.env.REACT_APP_API_URL;
 const AllCategory = (props) => {
   const { data, dispatch } = useContext(CategoryContext);
   const { categories, loading } = data;
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
 
   useEffect(() => {
     fetchData();
@@ -68,24 +69,56 @@ const AllCategory = (props) => {
     );
   }
 
+  // Sorting logic
+  const handleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        if (prev.direction === "asc") return { key, direction: "desc" };
+        if (prev.direction === "desc") return { key: null, direction: null };
+        return { key, direction: "asc" };
+      }
+      return { key, direction: "asc" };
+    });
+  };
+
+  let sortedCategories = categories ? [...categories] : [];
+  if (sortConfig.key && sortConfig.direction) {
+    sortedCategories.sort((a, b) => {
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+      if (typeof aValue === 'string') aValue = aValue.toLowerCase();
+      if (typeof bValue === 'string') bValue = bValue.toLowerCase();
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  const getSortIcon = (key) => {
+    if (sortConfig.key !== key) return <span className="ml-1">⇅</span>;
+    if (sortConfig.direction === 'asc') return <span className="ml-1">↑</span>;
+    if (sortConfig.direction === 'desc') return <span className="ml-1">↓</span>;
+    return <span className="ml-1">⇅</span>;
+  };
+
   return (
     <Fragment>
       <div className="col-span-1 overflow-auto bg-white shadow-lg p-4">
         <table className="table-auto border w-full my-2">
           <thead>
             <tr>
-              <th className="px-4 py-2 border">Category</th>
-              <th className="px-4 py-2 border">Description</th>
+              <th className="px-4 py-2 border cursor-pointer" onClick={() => handleSort('name')}>Category{getSortIcon('name')}</th>
+              <th className="px-4 py-2 border cursor-pointer" onClick={() => handleSort('description')}>Description{getSortIcon('description')}</th>
               <th className="px-4 py-2 border">Image</th>
-              <th className="px-4 py-2 border">Status</th>
-              <th className="px-4 py-2 border">Created at</th>
-              <th className="px-4 py-2 border">Updated at</th>
+              <th className="px-4 py-2 border cursor-pointer" onClick={() => handleSort('status')}>Status{getSortIcon('status')}</th>
+              <th className="px-4 py-2 border cursor-pointer" onClick={() => handleSort('createdAt')}>Created at{getSortIcon('createdAt')}</th>
+              <th className="px-4 py-2 border cursor-pointer" onClick={() => handleSort('updatedAt')}>Updated at{getSortIcon('updatedAt')}</th>
               <th className="px-4 py-2 border">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {categories && categories.length > 0 ? (
-              categories.map((item, key) => {
+            {sortedCategories && sortedCategories.length > 0 ? (
+              sortedCategories.map((item, key) => {
                 return (
                   <CategoryTable
                     category={item}

@@ -1,9 +1,6 @@
-import {
-  getUserById,
-  updatePersonalInformationFetch,
-  getOrderByUser,
-  updatePassword,
-} from "./FetchApi";
+
+import { updatePersonalInformationFetch, getOrderByUser, updatePassword } from "./FetchApi";
+import { fetchUserInfo } from "./userApi";
 
 export const logout = () => {
   localStorage.removeItem("jwt");
@@ -14,25 +11,14 @@ export const logout = () => {
 
 export const fetchData = async (dispatch) => {
   dispatch({ type: "loading", payload: true });
-  let jwt = JSON.parse(localStorage.getItem("jwt"));
-  let userId = jwt && jwt.user ? jwt.user._id : null;
-  if (!userId) {
-    dispatch({ type: "userDetails", payload: null });
-    dispatch({ type: "loading", payload: false });
-    return;
-  }
   try {
-    let responseData = await getUserById(userId);
-    setTimeout(() => {
-      if (responseData && responseData.User) {
-        dispatch({ type: "userDetails", payload: responseData.User });
-      }
-      dispatch({ type: "loading", payload: false });
-    }, 500);
+    const userData = await fetchUserInfo();
+    dispatch({ type: "userDetails", payload: userData });
   } catch (error) {
-    dispatch({ type: "loading", payload: false });
+    dispatch({ type: "userDetails", payload: null });
     console.log(error);
   }
+  dispatch({ type: "loading", payload: false });
 };
 
 export const fetchOrderByUser = async (dispatch) => {

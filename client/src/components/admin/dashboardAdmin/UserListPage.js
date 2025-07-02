@@ -31,6 +31,7 @@ const UserListPage = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
 
   useEffect(() => {
     setLoading(true);
@@ -40,6 +41,37 @@ const UserListPage = () => {
       .catch(() => setError("Failed to load data"))
       .finally(() => setLoading(false));
   }, [tab]);
+
+  const handleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        if (prev.direction === "asc") return { key, direction: "desc" };
+        if (prev.direction === "desc") return { key: null, direction: null };
+        return { key, direction: "asc" };
+      }
+      return { key, direction: "asc" };
+    });
+  };
+
+  let sortedData = [...data];
+  if (sortConfig.key && sortConfig.direction) {
+    sortedData.sort((a, b) => {
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+      if (typeof aValue === 'string') aValue = aValue.toLowerCase();
+      if (typeof bValue === 'string') bValue = bValue.toLowerCase();
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }
+
+  const getSortIcon = (key) => {
+    if (sortConfig.key !== key) return <span className="ml-1">⇅</span>;
+    if (sortConfig.direction === 'asc') return <span className="ml-1">↑</span>;
+    if (sortConfig.direction === 'desc') return <span className="ml-1">↓</span>;
+    return <span className="ml-1">⇅</span>;
+  };
 
   return (
     <AdminLayout>
@@ -76,13 +108,13 @@ const UserListPage = () => {
                 <table className="w-full border">
                   <thead>
                     <tr>
-                      <th className="border px-2 py-1">ID</th>
-                      <th className="border px-2 py-1">Name</th>
-                      <th className="border px-2 py-1">Email</th>
+                      <th className="border px-2 py-1 cursor-pointer" onClick={() => handleSort('id')}>ID{getSortIcon('id')}</th>
+                      <th className="border px-2 py-1 cursor-pointer" onClick={() => handleSort('name')}>Name{getSortIcon('name')}</th>
+                      <th className="border px-2 py-1 cursor-pointer" onClick={() => handleSort('email')}>Email{getSortIcon('email')}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {data.map((c) => (
+                    {sortedData.map((c) => (
                       <tr key={c.id}>
                         <td className="border px-2 py-1">{c.id}</td>
                         <td className="border px-2 py-1">{c.name}</td>
@@ -96,13 +128,13 @@ const UserListPage = () => {
                 <table className="w-full border">
                   <thead>
                     <tr>
-                      <th className="border px-2 py-1">ID</th>
-                      <th className="border px-2 py-1">Username</th>
-                      <th className="border px-2 py-1">Name</th>
+                      <th className="border px-2 py-1 cursor-pointer" onClick={() => handleSort('id')}>ID{getSortIcon('id')}</th>
+                      <th className="border px-2 py-1 cursor-pointer" onClick={() => handleSort('username')}>Username{getSortIcon('username')}</th>
+                      <th className="border px-2 py-1 cursor-pointer" onClick={() => handleSort('name')}>Name{getSortIcon('name')}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {data.map((e) => (
+                    {sortedData.map((e) => (
                       <tr key={e.id}>
                         <td className="border px-2 py-1">{e.id}</td>
                         <td className="border px-2 py-1">{e.username}</td>
@@ -116,13 +148,13 @@ const UserListPage = () => {
                 <table className="w-full border">
                   <thead>
                     <tr>
-                      <th className="border px-2 py-1">ID</th>
-                      <th className="border px-2 py-1">Username</th>
-                      <th className="border px-2 py-1">Name</th>
+                      <th className="border px-2 py-1 cursor-pointer" onClick={() => handleSort('id')}>ID{getSortIcon('id')}</th>
+                      <th className="border px-2 py-1 cursor-pointer" onClick={() => handleSort('username')}>Username{getSortIcon('username')}</th>
+                      <th className="border px-2 py-1 cursor-pointer" onClick={() => handleSort('name')}>Name{getSortIcon('name')}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {data.map((a) => (
+                    {sortedData.map((a) => (
                       <tr key={a.id}>
                         <td className="border px-2 py-1">{a.id}</td>
                         <td className="border px-2 py-1">{a.username}</td>

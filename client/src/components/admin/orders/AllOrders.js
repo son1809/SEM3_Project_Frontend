@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect } from "react";
+import React, { Fragment, useContext, useEffect, useState } from "react";
 import moment from "moment";
 
 import { OrderContext } from "./index";
@@ -7,6 +7,7 @@ import { fetchData, editOrderReq, deleteOrderReq } from "./Actions";
 const AllOrders = (props) => {
   const { data, dispatch } = useContext(OrderContext);
   const { orders, loading } = data;
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
 
   useEffect(() => {
     fetchData(dispatch);
@@ -33,26 +34,66 @@ const AllOrders = (props) => {
       </div>
     );
   }
+  // Sorting logic
+  const handleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        if (prev.direction === "asc") return { key, direction: "desc" };
+        if (prev.direction === "desc") return { key: null, direction: null };
+        return { key, direction: "asc" };
+      }
+      return { key, direction: "asc" };
+    });
+  };
+
+  let sortedOrders = orders ? [...orders] : [];
+  if (sortConfig.key && sortConfig.direction) {
+    sortedOrders.sort((a, b) => {
+      let aVal = a[sortConfig.key];
+      let bVal = b[sortConfig.key];
+      if (sortConfig.key === "orderDate" || sortConfig.key === "deliveryDate") {
+        aVal = aVal ? new Date(aVal) : 0;
+        bVal = bVal ? new Date(bVal) : 0;
+      }
+      if (aVal === undefined || aVal === null) return 1;
+      if (bVal === undefined || bVal === null) return -1;
+      if (typeof aVal === "string" && typeof bVal === "string") {
+        aVal = aVal.toLowerCase();
+        bVal = bVal.toLowerCase();
+      }
+      if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }
+
+  const getSortIcon = (key) => {
+    if (sortConfig.key !== key) return <span className="ml-1">⇅</span>;
+    if (sortConfig.direction === 'asc') return <span className="ml-1">↑</span>;
+    if (sortConfig.direction === 'desc') return <span className="ml-1">↓</span>;
+    return <span className="ml-1">⇅</span>;
+  };
+
   return (
     <Fragment>
       <div className="col-span-1 overflow-auto bg-white shadow-lg p-4">
         <table className="table-auto border w-full my-2">
           <thead>
             <tr>
-              <th className="px-4 py-2 border">Order ID</th>
-              <th className="px-4 py-2 border">Order Date</th>
-              <th className="px-4 py-2 border">Delivery Date</th>
-              <th className="px-4 py-2 border">Delivery Type</th>
-              <th className="px-4 py-2 border">Dispatch Status</th>
-              <th className="px-4 py-2 border">Payment Status</th>
-              <th className="px-4 py-2 border">Total</th>
+              <th className="px-4 py-2 border cursor-pointer" onClick={() => handleSort('id')}>Order ID{getSortIcon('id')}</th>
+              <th className="px-4 py-2 border cursor-pointer" onClick={() => handleSort('orderDate')}>Order Date{getSortIcon('orderDate')}</th>
+              <th className="px-4 py-2 border cursor-pointer" onClick={() => handleSort('deliveryDate')}>Delivery Date{getSortIcon('deliveryDate')}</th>
+              <th className="px-4 py-2 border cursor-pointer" onClick={() => handleSort('deliveryType')}>Delivery Type{getSortIcon('deliveryType')}</th>
+              <th className="px-4 py-2 border cursor-pointer" onClick={() => handleSort('dispatchStatus')}>Dispatch Status{getSortIcon('dispatchStatus')}</th>
+              <th className="px-4 py-2 border cursor-pointer" onClick={() => handleSort('paymentStatus')}>Payment Status{getSortIcon('paymentStatus')}</th>
+              <th className="px-4 py-2 border cursor-pointer" onClick={() => handleSort('totalAmount')}>Total{getSortIcon('totalAmount')}</th>
               <th className="px-4 py-2 border">Items</th>
               <th className="px-4 py-2 border">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {orders && orders.length > 0 ? (
-              orders.map((item, i) => {
+            {sortedOrders && sortedOrders.length > 0 ? (
+              sortedOrders.map((item, i) => {
                 return (
                   <OrderTableRow
                     key={i}

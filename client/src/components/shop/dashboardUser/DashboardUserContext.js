@@ -1,5 +1,6 @@
+
 export const dashboardUserState = {
-  userDetails: null,
+  userDetails: null, // { name, email, phoneNumber, address }
   loading: false,
   OrderByUser: null,
 };
@@ -7,6 +8,7 @@ export const dashboardUserState = {
 export const dashboardUserReducer = (state, action) => {
   switch (action.type) {
     case "userDetails":
+      // Expect payload: { name, email, phoneNumber, address }
       return {
         ...state,
         userDetails: action.payload,

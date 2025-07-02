@@ -64,7 +64,7 @@ const DashboardAnalytics = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-blue-50 rounded p-4 text-center">
               <div className="text-lg text-gray-600">Total Revenue</div>
-              <div className="text-2xl font-bold text-blue-700">{summary?.totalRevenue?.toLocaleString() || 0}₫</div>
+              <div className="text-2xl font-bold text-blue-700">${summary?.totalRevenue?.toLocaleString() || 0}</div>
             </div>
             <div className="bg-green-50 rounded p-4 text-center">
               <div className="text-lg text-gray-600">Orders</div>

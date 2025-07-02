@@ -104,9 +104,13 @@ export const getPaymentProcess = async (paymentData) => {
 export const startPayment = async ({ orderId, amount }) => {
   try {
     const jwt = JSON.parse(localStorage.getItem("jwt"));
+    // Build return and cancel URLs based on current location
+    const baseUrl = window.location.origin;
+    const returnUrl = `${baseUrl}/paypal-return`;
+    const cancelUrl = `${baseUrl}/payment-failed`;
     const res = await axios.post(
       `${apiURL}/api/payment/start`,
-      { orderId, amount },
+      { orderId, amount, returnUrl, cancelUrl },
       { headers: { Authorization: `Bearer ${jwt.token}` } }
     );
     return res.data; // { payUrl }
