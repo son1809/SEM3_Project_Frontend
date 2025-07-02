@@ -9,6 +9,8 @@ import {
   ProductDetails,
   ProductByCategory,
   CheckoutPage,
+  Blog,
+  ContactUs,
 } from "./shop";
 import { DashboardAdmin, Categories, Products, Orders, AdminEmployeeLogin, AdminEmployeeRegister, ChangeEmployeePassword, UserList } from "./admin";
 import { UserProfile, UserOrders, SettingUser } from "./shop/dashboardUser";
@@ -122,6 +124,9 @@ const AppRoutes = (props) => {
         />
         {/* User Dashboard End */}
 
+        {/* Blog & Contact Us */}
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/contact-us" element={<ContactUs />} />
         {/* 404 Page */}
         <Route path="*" element={<PageNotFound />} />
       </Routes>
